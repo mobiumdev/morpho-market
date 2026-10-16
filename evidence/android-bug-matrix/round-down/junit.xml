@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="mobium test" tests="25" failures="2" time="481.465">
+  <testsuite name="android › checkout.test.json" tests="11" failures="1" time="316.912">
+    <testcase name="A: two tees and a mug, WELCOME10, standard to NY" classname="android.checkout.test.json" time="38.756"></testcase>
+    <testcase name="B: MOBIUM5 takes $77.98 under the free-shipping line, CA" classname="android.checkout.test.json" time="43.676"></testcase>
+    <testcase name="C1: exactly $75.00 ships free" classname="android.checkout.test.json" time="17.720"></testcase>
+    <testcase name="D: three tumblers, express to TX, shipping taxed" classname="android.checkout.test.json" time="34.522"></testcase>
+    <testcase name="K: SHIPFREE frees standard, not express" classname="android.checkout.test.json" time="9.222"></testcase>
+    <testcase name="M: pickup asks no address and is taxed in CA" classname="android.checkout.test.json" time="32.691">
+      <failure message="step 18 of 19 (app_wait_for) failed: timed out after 10.02s waiting for testid=sumTax to say exactly &#34;$4.21&#34; — its text is &#34;$4.20&#34;; steps 1-17 ran before it, and nothing after" type="timeout">step 18 (app_wait_for): [timeout] step 18 of 19 (app_wait_for) failed: timed out after 10.02s waiting for testid=sumTax to say exactly &#34;$4.21&#34; — its text is &#34;$4.20&#34;; steps 1-17 ran before it, and nothing after</failure>
+    </testcase>
+    <testcase name="delivery chosen stays chosen after going back from payment" classname="android.checkout.test.json" time="30.770"></testcase>
+    <testcase name="the address form says what is missing" classname="android.checkout.test.json" time="12.190"></testcase>
+    <testcase name="the declined cards are declined, and nothing is ordered" classname="android.checkout.test.json" time="32.683"></testcase>
+    <testcase name="the slow card is waited for, and one tap places one order" classname="android.checkout.test.json" time="29.873"></testcase>
+    <testcase name="WELCOME10 is spent once an order uses it" classname="android.checkout.test.json" time="34.810"></testcase>
+  </testsuite>
+  <testsuite name="android › shop.test.json" tests="14" failures="1" time="164.552">
+    <testcase name="the catalog lists every product" classname="android.shop.test.json" time="3.256"></testcase>
+    <testcase name="search narrows the catalog" classname="android.shop.test.json" time="7.769"></testcase>
+    <testcase name="a category narrows the catalog" classname="android.shop.test.json" time="6.067"></testcase>
+    <testcase name="price, low to high, starts with the magnet" classname="android.shop.test.json" time="7.005"></testcase>
+    <testcase name="an XXL tee costs $2 more" classname="android.shop.test.json" time="6.582"></testcase>
+    <testcase name="out of stock cannot be added" classname="android.shop.test.json" time="8.321"></testcase>
+    <testcase name="the quantity stops at 10" classname="android.shop.test.json" time="11.793"></testcase>
+    <testcase name="two tees and a mug, with WELCOME10" classname="android.shop.test.json" time="14.324"></testcase>
+    <testcase name="a code applies once" classname="android.shop.test.json" time="9.098"></testcase>
+    <testcase name="codes refused, each saying why" classname="android.shop.test.json" time="19.997"></testcase>
+    <testcase name="MOBIUM5 comes off when the cart drops under $30" classname="android.shop.test.json" time="16.744"></testcase>
+    <testcase name="removing the last line asks first, and the badge goes" classname="android.shop.test.json" time="9.106"></testcase>
+    <testcase name="10% of $37.45 rounds half up to $3.75" classname="android.shop.test.json" time="27.496">
+      <failure message="step 11 of 11 (app_wait_for) failed: timed out after 10.041s waiting for testid=sumDiscount to say exactly &#34;-$3.75&#34; — its text is &#34;-$3.74&#34;; steps 1-10 ran before it, and nothing after" type="timeout">step 11 (app_wait_for): [timeout] step 11 of 11 (app_wait_for) failed: timed out after 10.041s waiting for testid=sumDiscount to say exactly &#34;-$3.75&#34; — its text is &#34;-$3.74&#34;; steps 1-10 ran before it, and nothing after</failure>
+    </testcase>
+    <testcase name="a gift card needs an email, and takes no code" classname="android.shop.test.json" time="16.994"></testcase>
+  </testsuite>
+</testsuites>

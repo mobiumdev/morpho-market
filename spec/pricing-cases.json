@@ -1,0 +1,53 @@
+[
+  {"name": "A: two tees and a mug, WELCOME10, standard to NY (shipping taxed)", "cart": [{"id": "tee", "variant": "M", "qty": 2}, {"id": "mug", "qty": 1}], "coupon": "WELCOME10", "method": "standard", "state": "NY", "expect": {"merch": 6400, "discount": 640, "shipping": 599, "tax": 564, "total": 6923}},
+
+  {"name": "B: MOBIUM5 takes the order under free shipping, CA", "cart": [{"id": "hoodie", "variant": "L", "qty": 1}, {"id": "socks", "qty": 1}, {"id": "magnet", "qty": 1}], "coupon": "MOBIUM5", "method": "standard", "state": "CA", "expect": {"merch": 7798, "discount": 500, "shipping": 599, "tax": 529, "total": 8426}},
+
+  {"name": "C1: exactly $75.00 ships free", "cart": [{"id": "tee", "variant": "S", "qty": 1}, {"id": "tumbler", "qty": 1}, {"id": "tote", "qty": 1}], "method": "standard", "state": "OR", "expect": {"merch": 7500, "shipping": 0, "tax": 0, "total": 7500}},
+
+  {"name": "C2: $74.99 does not", "cart": [{"id": "tumbler", "qty": 1}, {"id": "case", "variant": "Pixel 8 Pro", "qty": 1}, {"id": "socks", "qty": 1}], "method": "standard", "state": "OR", "expect": {"merch": 7499, "shipping": 599, "tax": 0, "total": 8098}},
+
+  {"name": "D: three tumblers express to TX, 1350 g", "cart": [{"id": "tumbler", "qty": 3}], "method": "express", "state": "TX", "expect": {"merch": 9600, "shipping": 1749, "tax": 709, "total": 12058, "grams": 1350}},
+
+  {"name": "E: a gift card alone: no shipping, no tax", "cart": [{"id": "giftcard", "variant": "50", "qty": 1}], "state": "NY", "expect": {"merch": 0, "shipping": 0, "tax": 0, "gift": 5000, "total": 5000}},
+
+  {"name": "F: a code on a gift card alone is refused", "cart": [{"id": "giftcard", "variant": "25", "qty": 1}], "coupon": "WELCOME10", "expect": {"coupon_error": "Codes don't apply to gift cards."}},
+
+  {"name": "G: a gift card beside merch is not discounted or taxed", "cart": [{"id": "hat", "qty": 1}, {"id": "giftcard", "variant": "25", "qty": 1}], "coupon": "WELCOME10", "method": "standard", "state": "WA", "expect": {"merch": 2600, "discount": 260, "gift": 2500}},
+
+  {"name": "H: 10% of $37.45 rounds half up to $3.75", "cart": [{"id": "stickers", "qty": 5}], "coupon": "welcome10 ", "method": "pickup", "expect": {"merch": 3745, "discount": 375}},
+
+  {"name": "I: MOBIUM5 under its minimum says how much more", "cart": [{"id": "pins", "qty": 2}], "coupon": "MOBIUM5", "expect": {"coupon_error": "Add $6.00 more to use this code."}},
+
+  {"name": "J: an expired code", "cart": [{"id": "mug", "qty": 1}], "coupon": "EXPIRED20", "expect": {"coupon_error": "That code has expired."}},
+
+  {"name": "K: SHIPFREE frees standard, not express", "cart": [{"id": "mug", "qty": 1}], "coupon": "SHIPFREE", "method": "express", "state": "CA", "expect": {"shipping": 1499}},
+
+  {"name": "L: SHIPFREE on standard", "cart": [{"id": "mug", "qty": 1}], "coupon": "SHIPFREE", "method": "standard", "state": "TX", "expect": {"shipping": 0, "tax": 100, "total": 1700}},
+
+  {"name": "M: pickup is taxed at the store's state (CA), whatever the address", "cart": [{"id": "hoodie", "variant": "M", "qty": 1}], "method": "pickup", "state": "OR", "expect": {"shipping": 0, "tax": 421, "total": 6221}},
+
+  {"name": "N: an XXL tee costs $2 more", "cart": [{"id": "tee", "variant": "XXL", "qty": 1}], "method": "pickup", "expect": {"merch": 2600}},
+
+  {"name": "O: over 1 kg still ships free at $75 or more", "cart": [{"id": "hoodie", "variant": "S", "qty": 1}, {"id": "mug", "qty": 1}, {"id": "magnet", "qty": 1}], "method": "standard", "state": "OR", "expect": {"grams": 1120, "merch": 7999, "shipping": 0}},
+
+  {"name": "P: the same weight, paid, below the free line", "cart": [{"id": "mug", "qty": 3}], "method": "standard", "state": "OR", "expect": {"grams": 1200, "merch": 4800, "shipping": 749}},
+
+  {"name": "bug tax-before-discount, A: tax $6.21", "cart": [{"id": "tee", "variant": "M", "qty": 2}, {"id": "mug", "qty": 1}], "coupon": "WELCOME10", "method": "standard", "state": "NY", "bugs": ["tax-before-discount"], "expect": {"tax": 621}},
+
+  {"name": "bug free-shipping-before-discount, B: shipping $0, total $78.27", "cart": [{"id": "hoodie", "variant": "L", "qty": 1}, {"id": "socks", "qty": 1}, {"id": "magnet", "qty": 1}], "coupon": "MOBIUM5", "method": "standard", "state": "CA", "bugs": ["free-shipping-before-discount"], "expect": {"shipping": 0, "total": 7827}},
+
+  {"name": "bug free-shipping-over, C1: $75.00 exactly pays shipping", "cart": [{"id": "tee", "variant": "S", "qty": 1}, {"id": "tumbler", "qty": 1}, {"id": "tote", "qty": 1}], "method": "standard", "state": "OR", "bugs": ["free-shipping-over"], "expect": {"shipping": 599}},
+
+  {"name": "bug round-down, H: discount $3.74", "cart": [{"id": "stickers", "qty": 5}], "coupon": "welcome10 ", "method": "pickup", "bugs": ["round-down"], "expect": {"discount": 374}},
+
+  {"name": "bug round-down, M: tax $4.20", "cart": [{"id": "hoodie", "variant": "M", "qty": 1}], "method": "pickup", "state": "OR", "bugs": ["round-down"], "expect": {"tax": 420}},
+
+  {"name": "bug coupon-twice, A: discount $12.80", "cart": [{"id": "tee", "variant": "M", "qty": 2}, {"id": "mug", "qty": 1}], "coupon": "WELCOME10", "method": "standard", "state": "NY", "times": 2, "expect": {"discount": 1280}},
+
+  {"name": "bug expired-accepted, J: 20% off", "cart": [{"id": "mug", "qty": 1}], "coupon": "EXPIRED20", "method": "pickup", "bugs": ["expired-accepted"], "expect": {"discount": 320}},
+
+  {"name": "bug express-free, K: express free", "cart": [{"id": "mug", "qty": 1}], "coupon": "SHIPFREE", "method": "express", "state": "CA", "bugs": ["express-free"], "expect": {"shipping": 0}},
+
+  {"name": "bug xxl-no-surcharge, N: $24.00", "cart": [{"id": "tee", "variant": "XXL", "qty": 1}], "method": "pickup", "bugs": ["xxl-no-surcharge"], "expect": {"merch": 2400}}
+]

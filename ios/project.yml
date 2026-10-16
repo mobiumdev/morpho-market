@@ -1,0 +1,56 @@
+name: MorphoMarket
+options:
+  bundleIdPrefix: dev.mobium
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+targets:
+  MorphoMarket:
+    type: application
+    platform: iOS
+    sources: [MorphoMarket]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.mobium.shop
+        PRODUCT_NAME: Morpho Market
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Morpho Market
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+    info:
+      path: MorphoMarket/Info.plist
+      properties:
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.mobium.shop
+            CFBundleURLSchemes: [mobiumshop]
+        UILaunchScreen: {}
+  MorphoMarketTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - MorphoMarketTests
+      - path: ../spec/pricing-cases.json
+        buildPhase: resources
+      - path: ../spec/catalog.json
+        buildPhase: resources
+    dependencies:
+      - target: MorphoMarket
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Morpho Market.app/Morpho Market"
+schemes:
+  MorphoMarket:
+    build:
+      targets:
+        MorphoMarket: all
+        MorphoMarketTests: [test]
+    test:
+      targets: [MorphoMarketTests]

@@ -1,0 +1,106 @@
+{
+ "products": [
+  {
+   "id": "tee",
+   "name": "Logo Tee",
+   "cents": 2400,
+   "grams": 200,
+   "digital": false
+  },
+  {
+   "id": "hoodie",
+   "name": "Map Before You Tap Hoodie",
+   "cents": 5800,
+   "grams": 700,
+   "digital": false
+  },
+  {
+   "id": "hat",
+   "name": "Morpho Dad Hat",
+   "cents": 2600,
+   "grams": 150,
+   "digital": false
+  },
+  {
+   "id": "mug",
+   "name": "Wait For It Mug",
+   "cents": 1600,
+   "grams": 400,
+   "digital": false
+  },
+  {
+   "id": "tumbler",
+   "name": "No sleep() Tumbler",
+   "cents": 3200,
+   "grams": 450,
+   "digital": false
+  },
+  {
+   "id": "magnet",
+   "name": "Works On My Emulator Magnet",
+   "cents": 599,
+   "grams": 20,
+   "digital": false
+  },
+  {
+   "id": "pins",
+   "name": "@e1 Enamel Pin Set",
+   "cents": 1200,
+   "grams": 50,
+   "digital": false
+  },
+  {
+   "id": "stickers",
+   "name": "CHALLENGES Sticker Pack",
+   "cents": 749,
+   "grams": 10,
+   "digital": false
+  },
+  {
+   "id": "case",
+   "name": "Real Device Verified Phone Case",
+   "cents": 2900,
+   "grams": 60,
+   "digital": false
+  },
+  {
+   "id": "beanie",
+   "name": "Headless Beanie",
+   "cents": 2200,
+   "grams": 120,
+   "digital": false
+  },
+  {
+   "id": "tote",
+   "name": "Leave Nothing On The Device Tote",
+   "cents": 1900,
+   "grams": 250,
+   "digital": false
+  },
+  {
+   "id": "socks",
+   "name": "Zero Runtime Dependencies Socks",
+   "cents": 1399,
+   "grams": 80,
+   "digital": false
+  },
+  {
+   "id": "giftcard",
+   "name": "Gift Card",
+   "cents": null,
+   "grams": 0,
+   "digital": true
+  }
+ ],
+ "surcharge": [
+  {
+   "id": "tee",
+   "variant": "XXL",
+   "cents": 200
+  }
+ ],
+ "gift_amounts": {
+  "25": 2500,
+  "50": 5000
+ }
+}

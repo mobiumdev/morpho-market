@@ -1,0 +1,62 @@
+none: 25 tests, 0 failed
+coupon-twice: caught by 1
+    shop.test.json › a code applies once
+declined-succeeds: caught by 1
+    checkout.test.json › the declined cards are declined, and nothing is ordered
+double-order: caught by 1
+    checkout.test.json › the slow card is waited for, and one tap places one order
+expired-accepted: caught by 1
+    shop.test.json › codes refused, each saying why
+express-free: caught by 1
+    checkout.test.json › K: SHIPFREE frees standard, not express
+free-shipping-before-discount: caught by 1
+    checkout.test.json › B: MOBIUM5 takes $77.98 under the free-shipping line, CA
+free-shipping-over: caught by 1
+    checkout.test.json › C1: exactly $75.00 ships free
+lost-delivery: caught by 1
+    checkout.test.json › delivery chosen stays chosen after going back from payment
+out-of-stock-addable: caught by 1
+    shop.test.json › out of stock cannot be added
+qty-eleven: caught by 1
+    shop.test.json › the quantity stops at 10
+round-down: caught by 2
+    checkout.test.json › M: pickup asks no address and is taxed in CA
+    shop.test.json › 10% of $37.45 rounds half up to $3.75
+slow-catalog: caught by 25
+    checkout.test.json › A: two tees and a mug, WELCOME10, standard to NY
+    checkout.test.json › B: MOBIUM5 takes $77.98 under the free-shipping line, CA
+    checkout.test.json › C1: exactly $75.00 ships free
+    checkout.test.json › D: three tumblers, express to TX, shipping taxed
+    checkout.test.json › K: SHIPFREE frees standard, not express
+    checkout.test.json › M: pickup asks no address and is taxed in CA
+    checkout.test.json › delivery chosen stays chosen after going back from payment
+    checkout.test.json › the address form says what is missing
+    checkout.test.json › the declined cards are declined, and nothing is ordered
+    checkout.test.json › the slow card is waited for, and one tap places one order
+    checkout.test.json › WELCOME10 is spent once an order uses it
+    shop.test.json › the catalog lists every product
+    shop.test.json › search narrows the catalog
+    shop.test.json › a category narrows the catalog
+    shop.test.json › price, low to high, starts with the magnet
+    shop.test.json › an XXL tee costs $2 more
+    shop.test.json › out of stock cannot be added
+    shop.test.json › the quantity stops at 10
+    shop.test.json › two tees and a mug, with WELCOME10
+    shop.test.json › a code applies once
+    shop.test.json › codes refused, each saying why
+    shop.test.json › MOBIUM5 comes off when the cart drops under $30
+    shop.test.json › removing the last line asks first, and the badge goes
+    shop.test.json › 10% of $37.45 rounds half up to $3.75
+    shop.test.json › a gift card needs an email, and takes no code
+sort-as-text: caught by 1
+    shop.test.json › price, low to high, starts with the magnet
+stale-badge: caught by 2
+    checkout.test.json › A: two tees and a mug, WELCOME10, standard to NY
+    shop.test.json › removing the last line asks first, and the badge goes
+tax-before-discount: caught by 2
+    checkout.test.json › A: two tees and a mug, WELCOME10, standard to NY
+    checkout.test.json › B: MOBIUM5 takes $77.98 under the free-shipping line, CA
+xxl-no-surcharge: caught by 1
+    shop.test.json › an XXL tee costs $2 more
+
+16 of 16 bugs caught

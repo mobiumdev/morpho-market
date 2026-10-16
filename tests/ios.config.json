@@ -1,0 +1,6 @@
+{
+  "testDir": ".",
+  "projects": [
+    {"name": "ios", "device": "${MOBIUM_IOS_DEVICE}", "driver": "wda"}
+  ]
+}
