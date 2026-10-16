@@ -9,8 +9,32 @@ scored against.
 Nothing is for sale. The catalog, prices and orders are local, and there is
 no network, so a run is deterministic and works offline.
 
+## See it run
+
+One Mobium test, checkout test **A** from `tests/checkout.test.json`, on
+both platforms: two Logo Tees and a mug, the code WELCOME10, standard
+shipping to New York, the spec's test card. It asserts every line of the
+summary and places the order. The same test file drives both apps.
+Shown at double speed.
+
+| Android (Jetpack Compose) | iOS (SwiftUI) |
+|---|---|
+| <img src="docs/media/android-checkout.gif" width="270" alt="Checkout test A on an Android 15 emulator, from the catalog to the order placed"> | <img src="docs/media/ios-checkout.gif" width="270" alt="Checkout test A on an iPhone 17 Pro simulator, from the catalog to the order placed"> |
+| [Full run, MP4](docs/media/android-checkout.mp4) | [Full run, MP4](docs/media/ios-checkout.mp4) |
+
+The screens the test passes through, Android above and iOS below:
+
+| Catalog | Cart | Review | Placed |
+|---|---|---|---|
+| <img src="docs/media/android-catalog.png" width="180" alt="Android catalog"> | <img src="docs/media/android-cart.png" width="180" alt="Android cart with two tees and a mug"> | <img src="docs/media/android-review.png" width="180" alt="Android review: WELCOME10 takes $6.40, total $69.23"> | <img src="docs/media/android-placed.png" width="180" alt="Android: order MS-000001 placed"> |
+| <img src="docs/media/ios-catalog.png" width="180" alt="iOS catalog"> | <img src="docs/media/ios-cart.png" width="180" alt="iOS cart with two tees and a mug"> | <img src="docs/media/ios-review.png" width="180" alt="iOS review: WELCOME10 takes $6.40, total $69.23"> | <img src="docs/media/ios-placed.png" width="180" alt="iOS: order MS-000001 placed"> |
+
+Recorded on an Android 15 emulator and an iPhone 17 Pro simulator (iOS
+26.5), with Mobium at `74ce9e9`.
+
 ## Contents
 
+- [See it run](#see-it-run)
 - [Why it exists](#why-it-exists)
 - [What is in it](#what-is-in-it)
 - [Build and install](#build-and-install)
