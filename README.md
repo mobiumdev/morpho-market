@@ -24,10 +24,13 @@ Shown at double speed.
 
 The screens the test passes through, Android above and iOS below:
 
-| Catalog | Cart | Review | Placed |
+| Catalog | Product | Cart | Placed |
 |---|---|---|---|
-| <img src="docs/media/android-catalog.png" width="180" alt="Android catalog"> | <img src="docs/media/android-cart.png" width="180" alt="Android cart with two tees and a mug"> | <img src="docs/media/android-review.png" width="180" alt="Android review: WELCOME10 takes $6.40, total $69.23"> | <img src="docs/media/android-placed.png" width="180" alt="Android: order MS-000001 placed"> |
-| <img src="docs/media/ios-catalog.png" width="180" alt="iOS catalog"> | <img src="docs/media/ios-cart.png" width="180" alt="iOS cart with two tees and a mug"> | <img src="docs/media/ios-review.png" width="180" alt="iOS review: WELCOME10 takes $6.40, total $69.23"> | <img src="docs/media/ios-placed.png" width="180" alt="iOS: order MS-000001 placed"> |
+| <img src="docs/media/android-catalog.png" width="180" alt="Android catalog with product photographs"> | <img src="docs/media/android-product.png" width="180" alt="Android product page: Logo Tee, $24.00"> | <img src="docs/media/android-cart.png" width="180" alt="Android cart with two tees and a mug"> | <img src="docs/media/android-placed.png" width="180" alt="Android: order MS-000001 placed, $69.23"> |
+| <img src="docs/media/ios-catalog.png" width="180" alt="iOS catalog with product photographs"> | <img src="docs/media/ios-product.png" width="180" alt="iOS product page: Logo Tee, $24.00"> | <img src="docs/media/ios-cart.png" width="180" alt="iOS cart: WELCOME10 applied, $57.60 before shipping and tax"> | <img src="docs/media/ios-placed.png" width="180" alt="iOS: order MS-000001 placed, $69.23"> |
+
+The product photographs were generated with an open model; how, and every
+prompt, is in [docs/product-images.md](docs/product-images.md).
 
 Recorded on an Android 15 emulator and an iPhone 17 Pro simulator (iOS
 26.5), with Mobium at `74ce9e9`.
@@ -65,7 +68,7 @@ to #217, the last reproduced and confirmed in #218.
 |---|---|
 | [SPEC.md](SPEC.md) | The spec: catalog, pricing rules with worked examples, screens, ids, and the bug switch |
 | `spec/` | The pricing rules as a reference (`pricing.py`), the catalog, and the shared pricing cases |
-| `android/` | The Compose app (`dev.mobium.shop`), with unit tests over the shared cases |
+| `android/` | The Compose app (`app`, `dev.mobium.shop`) on the store's logic (`shared`: catalog, pricing, checkout, the bug switch), whose unit tests run the shared cases |
 | `ios/` | The SwiftUI app (`dev.mobium.shop`), an XcodeGen project, with unit tests over the same cases |
 | `tests/` | One Mobium test suite for both platforms (`shop.test.json`, 14 tests; `checkout.test.json`, 11 tests), the configs, and the bug matrix (`matrix.sh`, `score.py`) |
 | `evidence/` | The bug matrix's results on both platforms; see [evidence/README.md](evidence/README.md) |
@@ -86,7 +89,7 @@ python3 spec/pricing.py     # checks the spec's worked examples against the rule
 
 ```sh
 cd android
-./gradlew :app:testDebugUnitTest :app:assembleRelease
+./gradlew :shared:testDebugUnitTest :app:assembleRelease
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 

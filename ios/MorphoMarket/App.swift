@@ -178,7 +178,25 @@ extension View {
     }
 }
 
-/// The morpho, drawn: no image files, nothing to load.
+/// A product's photograph (product_<id>.jpg in the bundle), filling whatever
+/// frame it is given. Decorative: hidden from accessibility, so the name beside
+/// it stays the one thing VoiceOver and a test find.
+struct ProductImage: View {
+    let id: String
+
+    var body: some View {
+        Color.clear
+            .overlay {
+                if let photo = UIImage(named: "product_\(id).jpg") {
+                    Image(uiImage: photo).resizable().scaledToFill()
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .accessibilityHidden(true)
+    }
+}
+
+/// The morpho, drawn: the brand mark, where no product is shown.
 struct Butterfly: View {
     let color: Color
 

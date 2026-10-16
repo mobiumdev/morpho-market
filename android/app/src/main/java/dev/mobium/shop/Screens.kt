@@ -3,6 +3,8 @@
 package dev.mobium.shop
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -54,10 +56,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
@@ -69,7 +74,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-/** The morpho, drawn: no image files, nothing to load. */
+/** A product's photograph (res/drawable-nodpi/product_<id>.jpg). Decorative:
+ *  no description, so the name beside it stays the one thing a screen reader
+ *  and a test find. */
+@Composable
+fun ProductImage(id: String, modifier: Modifier = Modifier) {
+    Image(painterResource(PRODUCT_IMAGES.getValue(id)), contentDescription = null,
+        contentScale = ContentScale.Crop, modifier = modifier.clip(RoundedCornerShape(12.dp)))
+}
+
+private val PRODUCT_IMAGES = mapOf(
+    "tee" to R.drawable.product_tee, "hoodie" to R.drawable.product_hoodie,
+    "hat" to R.drawable.product_hat, "beanie" to R.drawable.product_beanie,
+    "socks" to R.drawable.product_socks, "mug" to R.drawable.product_mug,
+    "tumbler" to R.drawable.product_tumbler, "case" to R.drawable.product_case,
+    "tote" to R.drawable.product_tote, "magnet" to R.drawable.product_magnet,
+    "pins" to R.drawable.product_pins, "stickers" to R.drawable.product_stickers,
+    "giftcard" to R.drawable.product_giftcard,
+)
+
+/** The morpho, drawn: the brand mark, where no product is shown. */
 @Composable
 fun Butterfly(color: Long, modifier: Modifier = Modifier) {
     val c = Color(color)
@@ -186,7 +210,7 @@ fun CatalogScreen(shop: Shop, onOpen: (String) -> Unit) {
             ) {
                 items(shown, key = { it.id }) { p ->
                     Card(Modifier.fillMaxWidth().testTag("product_${p.id}").clickable { onOpen(p.id) }) {
-                        Butterfly(p.color, Modifier.fillMaxWidth().height(110.dp).padding(8.dp))
+                        ProductImage(p.id, Modifier.fillMaxWidth().height(110.dp))
                         Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                             Text(p.name, maxLines = 2, overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.titleSmall)
@@ -239,7 +263,7 @@ fun ProductScreen(shop: Shop, id: String, onViewCart: () -> Unit) {
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Butterfly(p.color, Modifier.fillMaxWidth().height(180.dp))
+            ProductImage(p.id, Modifier.fillMaxWidth().height(180.dp))
             Text(p.name, Modifier.testTag("productTitle"), style = MaterialTheme.typography.headlineSmall)
             Text(shownPrice, Modifier.testTag("productPrice"), style = MaterialTheme.typography.titleLarge)
             Text(p.blurb, style = MaterialTheme.typography.bodyMedium)
@@ -349,7 +373,7 @@ fun CartScreen(shop: Shop, onKeepShopping: () -> Unit, onCheckout: () -> Unit) {
             }) {
                 Card(Modifier.fillMaxWidth().testTag("line_${line.key}")) {
                     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Butterfly(product(line.id).color, Modifier.size(48.dp))
+                        ProductImage(line.id, Modifier.size(48.dp))
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Text(line.label, style = MaterialTheme.typography.titleSmall)

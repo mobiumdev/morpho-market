@@ -58,8 +58,13 @@ reference.
 | `stickers` | CHALLENGES Sticker Pack | $7.49 | 10 g | Accessories | |
 | `giftcard` | Gift Card | $25 or $50 | none | Gift Cards | **digital**: no shipping, no tax, no codes; a recipient email |
 
-Images are drawn in the app (the morpho butterfly on each item, in the
-item's color), so there are no image files and nothing loads.
+Each item has a photograph, bundled in both apps and loaded locally
+(`android/app/src/main/res/drawable-nodpi/product_<id>.jpg`,
+`ios/MorphoMarket/Products/product_<id>.jpg`). They were generated with
+Z-Image-Turbo (Apache-2.0); the prompts are in `docs/product-images.md`. A
+photograph is decorative: it has no accessibility label, so the item's name
+stays the one thing a screen reader and a test find. The morpho butterfly,
+drawn in code, remains the brand mark on the order-placed screen.
 
 ## Pricing
 

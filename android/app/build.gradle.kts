@@ -30,14 +30,6 @@ android {
     buildFeatures {
         compose = true
     }
-    testOptions {
-        unitTests.all {
-            val spec = rootProject.file("../spec")
-            it.systemProperty("spec.dir", spec.absolutePath)
-            // An input, or Gradle keeps a pass from before a case changed.
-            it.inputs.dir(spec).withPropertyName("spec")
-        }
-    }
 }
 
 kotlin {
@@ -53,8 +45,5 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.foundation:foundation")
-
-    testImplementation("junit:junit:4.13.2")
-    // android.jar's org.json is a stub off the device; the real one reads the spec's cases.
-    testImplementation("org.json:json:20240303")
+    implementation(project(":shared"))
 }

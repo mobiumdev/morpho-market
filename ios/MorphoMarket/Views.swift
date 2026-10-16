@@ -145,7 +145,7 @@ struct CatalogView: View {
 
     private func card(_ p: Product) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Butterfly(color: p.swiftColor).frame(height: 100)
+            ProductImage(id: p.id).frame(height: 100)
             Text(p.name).font(.subheadline).lineLimit(2)
             Text(priceText(p)).font(.subheadline.weight(.semibold)).accessibilityIdentifier("price_\(p.id)")
             if p.outOfStock {
@@ -190,7 +190,7 @@ struct ProductView: View {
         ZStack(alignment: .bottom) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    Butterfly(color: p.swiftColor).frame(height: 170)
+                    ProductImage(id: p.id).frame(height: 170)
                     Text(p.name).font(.title2).accessibilityIdentifier("productTitle")
                     Text(shownPrice).font(.title3.weight(.semibold)).accessibilityIdentifier("productPrice")
                     Text(p.blurb).font(.body)
@@ -290,7 +290,7 @@ struct CartView: View {
             ForEach(shop.cart, id: \.key) { line in
                 let unit = unitPrice(line.line, bugs: shop.activePricingBugs)
                 HStack(spacing: 10) {
-                    Butterfly(color: product(line.id).swiftColor).frame(width: 44, height: 44)
+                    ProductImage(id: line.id).frame(width: 44, height: 44)
                     VStack(alignment: .leading) {
                         Text(line.label).font(.subheadline)
                         Text("\(money(unit)) each").font(.caption)
