@@ -26,7 +26,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,48 +35,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-
-sealed interface Screen {
-    data object Catalog : Screen
-    data class ProductPage(val id: String) : Screen
-    data object Cart : Screen
-    data object Orders : Screen
-    data object Bugs : Screen
-    data object Delivery : Screen
-    data object AddressForm : Screen
-    data object Payment : Screen
-    data object Review : Screen
-    data class Confirmation(val number: String) : Screen
-    data class Receipt(val number: String) : Screen
-}
-
-enum class Tab(val label: String, val root: Screen) {
-    SHOP("Shop", Screen.Catalog), CART("Cart", Screen.Cart), ORDERS("Orders", Screen.Orders)
-}
-
-/** Where the app is: a tab, and a stack of screens on it. Back pops the stack. */
-class Nav {
-    var tab by mutableStateOf(Tab.SHOP)
-        private set
-    val stack = mutableStateListOf<Screen>(Screen.Catalog)
-    val top: Screen get() = stack.last()
-
-    fun go(t: Tab) {
-        tab = t
-        stack.clear()
-        stack.add(t.root)
-    }
-
-    fun push(s: Screen) {
-        stack.add(s)
-    }
-
-    fun pop(): Boolean {
-        if (stack.size <= 1) return false
-        stack.removeAt(stack.lastIndex)
-        return true
-    }
-}
 
 class MainActivity : ComponentActivity() {
     private lateinit var shop: Shop
@@ -98,38 +55,8 @@ class MainActivity : ComponentActivity() {
         intent.data?.let(::handleLink)
     }
 
-    /**
-     * mobiumshop://bugs?on=a,b&off=c (off=all turns every bug off), and
-     * mobiumshop://reset. A link naming something that is not a bug is refused
-     * whole, with a dialog, before anything changes.
-     */
     private fun handleLink(uri: Uri) {
-        if (uri.scheme != "mobiumshop") return
-        when (uri.host) {
-            "bugs" -> {
-                fun ids(param: String) = uri.getQueryParameter(param)
-                    ?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
-                val on = ids("on")
-                var off = ids("off")
-                if ("all" in off) off = (off - "all") + BUG_IDS
-                val unknown = (on + off) - BUG_IDS
-                if (unknown.isNotEmpty()) {
-                    linkError = "Not a bug: ${unknown.sorted().joinToString(", ")}"
-                    return
-                }
-                if (on.isEmpty() && off.isEmpty()) {
-                    linkError = "The link names no bug: add on= or off="
-                    return
-                }
-                shop.setBugs(on, off)
-            }
-            "reset" -> {
-                shop.reset()
-                checkout.clear()
-                nav.go(Tab.SHOP)
-            }
-            else -> linkError = "Not a link this app knows: $uri"
-        }
+        followLink(uri, shop, nav, checkout)?.let { linkError = it }
     }
 }
 
@@ -138,11 +65,7 @@ private val Morpho = Color(0xFF1565C0)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun App(shop: Shop, nav: Nav, checkout: CheckoutState, linkError: String?, onLinkErrorSeen: () -> Unit) {
-    // Back from payment: the lost-delivery bug forgets the delivery chosen.
-    fun back() {
-        if (nav.top == Screen.Payment && shop.bug("lost-delivery")) checkout.method = Method.STANDARD
-        nav.pop()
-    }
+    fun back() = goBack(shop, nav, checkout)
     MaterialTheme(colorScheme = lightColorScheme(primary = Morpho, secondary = Color(0xFF00838F))) {
         BackHandler(enabled = nav.stack.size > 1) { back() }
         Scaffold(
@@ -150,19 +73,7 @@ fun App(shop: Shop, nav: Nav, checkout: CheckoutState, linkError: String?, onLin
             topBar = {
                 TopAppBar(
                     title = {
-                        val title = when (val s = nav.top) {
-                            Screen.Catalog -> "Morpho Market"
-                            is Screen.ProductPage -> product(s.id).name
-                            Screen.Cart -> "Cart"
-                            Screen.Orders -> "Orders"
-                            Screen.Bugs -> "Bugs"
-                            Screen.Delivery -> "Delivery"
-                            Screen.AddressForm -> "Address"
-                            Screen.Payment -> "Payment"
-                            Screen.Review -> "Review"
-                            is Screen.Confirmation -> "Thank you"
-                            is Screen.Receipt -> s.number
-                        }
+                        val title = screenTitle(nav.top)
                         Text(
                             title,
                             maxLines = 1,
@@ -217,25 +128,7 @@ fun App(shop: Shop, nav: Nav, checkout: CheckoutState, linkError: String?, onLin
             },
         ) { padding ->
             Box(Modifier.padding(padding).fillMaxSize()) {
-                when (val s = nav.top) {
-                    Screen.Catalog -> CatalogScreen(shop) { nav.push(Screen.ProductPage(it)) }
-                    is Screen.ProductPage -> ProductScreen(shop, s.id, onViewCart = { nav.go(Tab.CART) })
-                    Screen.Cart -> CartScreen(shop, onKeepShopping = { nav.go(Tab.SHOP) }, onCheckout = {
-                        nav.push(if (shop.cart.any { !product(it.id).digital }) Screen.Delivery else Screen.AddressForm)
-                    })
-                    Screen.Orders -> OrdersScreen(shop) { nav.push(Screen.Receipt(it)) }
-                    Screen.Bugs -> BugsScreen(shop)
-                    Screen.Delivery -> DeliveryScreen(shop, checkout) { nav.push(Screen.AddressForm) }
-                    Screen.AddressForm -> AddressScreen(shop, checkout) { nav.push(Screen.Payment) }
-                    Screen.Payment -> PaymentScreen(checkout) { nav.push(Screen.Review) }
-                    Screen.Review -> ReviewScreen(shop, checkout) { order ->
-                        checkout.clear()
-                        nav.go(Tab.SHOP)
-                        nav.push(Screen.Confirmation(order.number))
-                    }
-                    is Screen.Confirmation -> ConfirmationScreen(shop, s.number) { nav.go(Tab.SHOP) }
-                    is Screen.Receipt -> ReceiptScreen(shop, s.number)
-                }
+                ShopContent(shop, nav, checkout)
             }
         }
         if (linkError != null) {

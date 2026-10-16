@@ -13,7 +13,7 @@ mflux-generate-z-image-turbo --quantize 8 --width 1024 --height 1024 --seed <see
 sips -s format jpeg -s formatOptions 82 -Z 800 product.png --out product_<id>.jpg   # macOS
 ```
 
-Copy the JPEG to both `android/app/src/main/res/drawable-nodpi/` and `ios/MorphoMarket/Products/`.
+Copy the JPEG to both `android/ui/src/main/res/drawable-nodpi/` and `ios/MorphoMarket/Products/`.
 The same seed and prompt give the same image only with the same model, quantization and mflux version.
 
 Text on a product was read on every image before it was kept. The mug and the magnet took

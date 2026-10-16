@@ -1,0 +1,22 @@
+none: 1 tests, 0 failed
+coupon-twice: NOT CAUGHT
+declined-succeeds: NOT CAUGHT
+double-order: NOT CAUGHT
+expired-accepted: NOT CAUGHT
+express-free: NOT CAUGHT
+free-shipping-before-discount: NOT CAUGHT
+free-shipping-over: NOT CAUGHT
+lost-delivery: NOT CAUGHT
+out-of-stock-addable: NOT CAUGHT
+qty-eleven: NOT CAUGHT
+round-down: NOT CAUGHT
+slow-catalog: caught by 1
+    tv.test.json › A on TV: two tees and a mug, WELCOME10, standard to NY
+sort-as-text: NOT CAUGHT
+stale-badge: caught by 1
+    tv.test.json › A on TV: two tees and a mug, WELCOME10, standard to NY
+tax-before-discount: caught by 1
+    tv.test.json › A on TV: two tees and a mug, WELCOME10, standard to NY
+xxl-no-surcharge: NOT CAUGHT
+
+3 of 16 bugs caught; not caught: coupon-twice, declined-succeeds, double-order, expired-accepted, express-free, free-shipping-before-discount, free-shipping-over, lost-delivery, out-of-stock-addable, qty-eleven, round-down, sort-as-text, xxl-no-surcharge

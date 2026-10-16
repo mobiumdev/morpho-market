@@ -59,7 +59,7 @@ reference.
 | `giftcard` | Gift Card | $25 or $50 | none | Gift Cards | **digital**: no shipping, no tax, no codes; a recipient email |
 
 Each item has a photograph, bundled in both apps and loaded locally
-(`android/app/src/main/res/drawable-nodpi/product_<id>.jpg`,
+(`android/ui/src/main/res/drawable-nodpi/product_<id>.jpg`,
 `ios/MorphoMarket/Products/product_<id>.jpg`). They were generated with
 Z-Image-Turbo (Apache-2.0); the prompts are in `docs/product-images.md`. A
 photograph is decorative: it has no accessibility label, so the item's name
@@ -299,6 +299,23 @@ least one test, and with none on, every test must pass.
    phone uses test cards and a local store, so nothing leaves the app.
 5. Later: Compose Multiplatform as a third build. A gray-box hook for
    "placing" is out of scope, since the library is React Native's.
+
+## On a TV
+
+The TV app (`android/tv`, `dev.mobium.shop.tv`) is the same store for a
+remote: Fire TV (Fire OS 6 and later), Android TV and Google TV. It shares
+the store's logic (`android/shared`) and its screens (`android/ui`) with the
+phone app; only its shell is its own, the title and the three tabs across the
+top. It is launched from the TV's home screen (`LEANBACK_LAUNCHER`, with a
+banner) and takes the same `mobiumshop://` links.
+
+What a remote needs, each applied only where a remote drives the app: a
+strong focus highlight; five catalog columns and a two-pane product page;
+focus returned to a product's card on the way back; a text field that opens
+on select rather than on focus; Done moving on to the next field; and the
+"Added to cart" notice staying while its View cart has focus. The same ids
+and text as the phone, so `tests-tv/tv.test.json` asserts what the phone's
+checkout test A asserts, reaching each control with the D-pad.
 
 ## Open questions
 

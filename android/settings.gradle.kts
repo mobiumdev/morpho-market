@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "MorphoMarket"
-include(":shared", ":app")
+include(":shared", ":ui", ":app", ":tv")

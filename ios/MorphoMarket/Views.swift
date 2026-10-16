@@ -318,6 +318,9 @@ struct CartView: View {
                             .autocorrectionDisabled()
                             .accessibilityIdentifier("codeField")
                             .focused($codeFocused)
+                            // Return applies it, as Done does on Android (a TV's remote gets there that way).
+                            .submitLabel(.done)
+                            .onSubmit { codeFocused = false; shop.applyCode(codeText) }
                         // Applying a code is done typing: the keyboard goes, as it does in any store.
                         Button("Apply") { codeFocused = false; shop.applyCode(codeText) }.buttonStyle(.bordered).accessibilityIdentifier("applyCode")
                     }

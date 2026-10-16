@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="mobium test" tests="1" failures="1" time="41.099">
+  <testsuite name="tv › tv.test.json" tests="1" failures="1" time="41.099">
+    <testcase name="A on TV: two tees and a mug, WELCOME10, standard to NY" classname="tv.tv.test.json" time="41.099">
+      <failure message="step 52 of 59 (app_wait_for) failed: timed out after 10.03s waiting for testid=sumTax to say exactly &#34;$5.64&#34; — its text is &#34;$6.21&#34;; steps 1-51 ran before it, and nothing after" type="timeout">step 119 (app_wait_for): [timeout] step 52 of 59 (app_wait_for) failed: timed out after 10.03s waiting for testid=sumTax to say exactly &#34;$5.64&#34; — its text is &#34;$6.21&#34;; steps 1-51 ran before it, and nothing after</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="mobium test" tests="1" failures="1" time="7.750">
+  <testsuite name="tv › tv.test.json" tests="1" failures="1" time="7.750">
+    <testcase name="A on TV: two tees and a mug, WELCOME10, standard to NY" classname="tv.tv.test.json" time="7.750">
+      <failure message="in beforeEach: step 2 of 2 (app_wait_for) failed: timed out after 3.032s waiting for testid=catalogList to become visible — it is not on screen; step 1 ran before it, and nothing after" type="timeout">3 seconds, as on the phone: the slow-catalog bug takes 8, and a longer wait let it pass — before its steps: [timeout] in beforeEach: step 2 of 2 (app_wait_for) failed: timed out after 3.032s waiting for testid=catalogList to become visible — it is not on screen; step 1 ran before it, and nothing after</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

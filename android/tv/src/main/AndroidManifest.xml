@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- A TV has no touchscreen, and the store needs none: the remote drives it. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+
+    <application
+        android:label="Morpho Market"
+        android:icon="@drawable/ic_launcher"
+        android:banner="@drawable/banner"
+        android:allowBackup="false"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- singleTask: a link reaches the running store through onNewIntent. -->
+        <activity
+            android:name=".TvActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape">
+            <!-- LEANBACK_LAUNCHER: the only kind a TV's home screen lists, Fire TV's included. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mobiumshop" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

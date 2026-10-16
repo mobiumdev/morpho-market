@@ -42,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -124,19 +125,26 @@ private fun Field(
     keyboard: KeyboardType = KeyboardType.Text, secret: Boolean = false,
 ) {
     // Enter is Done and gives up focus, so the keyboard goes as it does on iOS.
+    // Under a remote it moves on to what is next, as a TV's forms do: given up,
+    // focus started again at the top of the screen after every field.
     val focus = LocalFocusManager.current
+    val remote = LocalRemote.current
     Column {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onChange,
-            label = { Text(label) },
-            singleLine = true,
-            isError = error != null,
-            keyboardOptions = KeyboardOptions(keyboardType = keyboard, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focus.clearFocus() }),
-            visualTransformation = if (secret) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
-            modifier = Modifier.fillMaxWidth().testTag("field_$tag"),
-        )
+        RemoteField(Modifier.fillMaxWidth()) { m ->
+            OutlinedTextField(
+                value = value,
+                onValueChange = onChange,
+                label = { Text(label) },
+                singleLine = true,
+                isError = error != null,
+                keyboardOptions = KeyboardOptions(keyboardType = keyboard, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    if (remote) focus.moveFocus(FocusDirection.Down) else focus.clearFocus()
+                }),
+                visualTransformation = if (secret) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
+                modifier = Modifier.fillMaxWidth().then(m).dpadLeaves().testTag("field_$tag"),
+            )
+        }
         if (error != null) Text(error, Modifier.testTag("error_$tag"), color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodySmall)
     }

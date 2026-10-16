@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="mobium test" tests="1" failures="0" time="34.221">
+  <testsuite name="tv › tv.test.json" tests="1" failures="0" time="34.221">
+    <testcase name="A on TV: two tees and a mug, WELCOME10, standard to NY" classname="tv.tv.test.json" time="34.221"></testcase>
+  </testsuite>
+</testsuites>

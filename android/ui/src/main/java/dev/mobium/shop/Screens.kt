@@ -10,6 +10,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,10 +55,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -71,7 +77,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.mobium.shop.ui.R
 import kotlinx.coroutines.delay
 
 /** A product's photograph (res/drawable-nodpi/product_<id>.jpg). Decorative:
@@ -127,7 +135,9 @@ private fun listPrice(p: Product) = if (p.digital) GIFT_AMOUNTS.values.min() els
 private fun priceText(p: Product) = if (p.digital) "${money(2500)} or ${money(5000)}" else money(p.cents)
 
 @Composable
-fun CatalogScreen(shop: Shop, onOpen: (String) -> Unit) {
+fun CatalogScreen(shop: Shop, columns: Int = 2, imageHeight: Dp = 110.dp, focusOn: String? = null,
+    onOpen: (String) -> Unit) {
+    val returnFocus = remember { FocusRequester() }
     var query by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<Category?>(null) }
     var sort by remember { mutableStateOf(Sort.FEATURED) }
@@ -141,6 +151,19 @@ fun CatalogScreen(shop: Shop, onOpen: (String) -> Unit) {
         if (loading) delay(8000)
         loading = false
         shop.catalogShown = true
+    }
+
+    // The card for focusOn takes focus once it is laid out; a filter can have
+    // hidden it, in which case focus stays where the platform puts it.
+    LaunchedEffect(focusOn, loading) {
+        if (focusOn != null && !loading) {
+            // A lazy grid composes only what is on screen: bring the card in, give
+            // it a frame to be laid out, then focus it. Coming back, the filters
+            // are the defaults, so its place is its place in the catalog.
+            grid.scrollToItem(CATALOG.indexOfFirst { it.id == focusOn }.coerceAtLeast(0))
+            withFrameNanos { }
+            runCatching { returnFocus.requestFocus() }
+        }
     }
 
     val shown = CATALOG
@@ -159,13 +182,15 @@ fun CatalogScreen(shop: Shop, onOpen: (String) -> Unit) {
         }
 
     Column(Modifier.fillMaxSize()) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            singleLine = true,
-            placeholder = { Text("Search") },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).testTag("searchField"),
-        )
+        RemoteField(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) { m ->
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                singleLine = true,
+                placeholder = { Text("Search") },
+                modifier = Modifier.fillMaxWidth().then(m).dpadLeaves().testTag("searchField"),
+            )
+        }
         Row(
             Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -201,7 +226,7 @@ fun CatalogScreen(shop: Shop, onOpen: (String) -> Unit) {
             shown.isEmpty() -> Text("No products match \"${query.trim()}\".",
                 Modifier.padding(24.dp).testTag("noResults"))
             else -> LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Fixed(columns),
                 state = grid,
                 contentPadding = PaddingValues(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -209,8 +234,9 @@ fun CatalogScreen(shop: Shop, onOpen: (String) -> Unit) {
                 modifier = Modifier.fillMaxSize().testTag("catalogList"),
             ) {
                 items(shown, key = { it.id }) { p ->
-                    Card(Modifier.fillMaxWidth().testTag("product_${p.id}").clickable { onOpen(p.id) }) {
-                        ProductImage(p.id, Modifier.fillMaxWidth().height(110.dp))
+                    val card = Modifier.fillMaxWidth().testTag("product_${p.id}")
+                    Card((if (p.id == focusOn) card.focusRequester(returnFocus) else card).clickable { onOpen(p.id) }) {
+                        ProductImage(p.id, Modifier.fillMaxWidth().height(imageHeight))
                         Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                             Text(p.name, maxLines = 2, overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.titleSmall)
@@ -235,7 +261,7 @@ private fun optionPrefix(p: Product) = when (p.optionName) {
 private val EMAIL = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
 @Composable
-fun ProductScreen(shop: Shop, id: String, onViewCart: () -> Unit) {
+fun ProductScreen(shop: Shop, id: String, wide: Boolean = false, onViewCart: () -> Unit) {
     val focus = LocalFocusManager.current
     val p = product(id)
     var variant by remember { mutableStateOf<String?>(null) }
@@ -253,37 +279,39 @@ fun ProductScreen(shop: Shop, id: String, onViewCart: () -> Unit) {
         else -> money(unitPrice(Line(p.id, variant, 1), shop.pricingBugs))
     }
 
-    LaunchedEffect(notice) {
-        if (notice > 0) {
+    // The notice stays while its View cart has focus: a remote takes a few
+    // presses to reach it, and four seconds ran out on the way.
+    var viewCartFocused by remember { mutableStateOf(false) }
+    LaunchedEffect(notice, viewCartFocused) {
+        if (notice > 0 && !viewCartFocused) {
             delay(4000)
             notice = 0
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            ProductImage(p.id, Modifier.fillMaxWidth().height(180.dp))
-            Text(p.name, Modifier.testTag("productTitle"), style = MaterialTheme.typography.headlineSmall)
-            Text(shownPrice, Modifier.testTag("productPrice"), style = MaterialTheme.typography.titleLarge)
-            Text(p.blurb, style = MaterialTheme.typography.bodyMedium)
-            if (p.outOfStock) {
-                Text("Out of stock", Modifier.testTag("productStock"), color = MaterialTheme.colorScheme.error)
-            }
-            if (needsVariant) {
-                Text(p.optionName!!, style = MaterialTheme.typography.titleSmall)
-                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    p.variants.forEach { v ->
-                        FilterChip(selected = variant == v.id, onClick = { variant = v.id }, label = { Text(v.label) },
-                            modifier = Modifier.testTag("${optionPrefix(p)}_${v.id}"))
-                    }
-                }
-                if (variant != null && variant in p.outOfStockVariants) {
-                    Text("Out of stock in ${p.variants.first { it.id == variant }.label}",
-                        Modifier.testTag("variantStock"), color = MaterialTheme.colorScheme.error)
+    // The details, once: below the photograph on a phone, beside it on a TV.
+    val details: @Composable ColumnScope.() -> Unit = {
+        Text(p.name, Modifier.testTag("productTitle"), style = MaterialTheme.typography.headlineSmall)
+        Text(shownPrice, Modifier.testTag("productPrice"), style = MaterialTheme.typography.titleLarge)
+        Text(p.blurb, style = MaterialTheme.typography.bodyMedium)
+        if (p.outOfStock) {
+            Text("Out of stock", Modifier.testTag("productStock"), color = MaterialTheme.colorScheme.error)
+        }
+        if (needsVariant) {
+            Text(p.optionName!!, style = MaterialTheme.typography.titleSmall)
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                p.variants.forEach { v ->
+                    FilterChip(selected = variant == v.id, onClick = { variant = v.id }, label = { Text(v.label) },
+                        modifier = Modifier.testTag("${optionPrefix(p)}_${v.id}"))
                 }
             }
-            if (p.digital) {
+            if (variant != null && variant in p.outOfStockVariants) {
+                Text("Out of stock in ${p.variants.first { it.id == variant }.label}",
+                    Modifier.testTag("variantStock"), color = MaterialTheme.colorScheme.error)
+            }
+        }
+        if (p.digital) {
+            RemoteField(Modifier.fillMaxWidth()) { m ->
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it; emailError = null },
@@ -292,29 +320,45 @@ fun ProductScreen(shop: Shop, id: String, onViewCart: () -> Unit) {
                     isError = emailError != null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { focus.clearFocus() }),
-                    modifier = Modifier.fillMaxWidth().testTag("giftEmail"),
+                    modifier = Modifier.fillMaxWidth().then(m).dpadLeaves().testTag("giftEmail"),
                 )
-                emailError?.let { Text(it, Modifier.testTag("giftEmailError"), color = MaterialTheme.colorScheme.error) }
             }
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Quantity")
-                OutlinedButton(onClick = { qty-- }, enabled = qty > 1, modifier = Modifier.testTag("qtyMinus")) { Text("−") }
-                Text("$qty", Modifier.testTag("qtyValue"), style = MaterialTheme.typography.titleMedium)
-                OutlinedButton(onClick = { qty++ }, enabled = qty < shop.maxQty, modifier = Modifier.testTag("qtyPlus")) { Text("+") }
+            emailError?.let { Text(it, Modifier.testTag("giftEmailError"), color = MaterialTheme.colorScheme.error) }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Quantity")
+            OutlinedButton(onClick = { qty-- }, enabled = qty > 1, modifier = Modifier.testTag("qtyMinus")) { Text("−") }
+            Text("$qty", Modifier.testTag("qtyValue"), style = MaterialTheme.typography.titleMedium)
+            OutlinedButton(onClick = { qty++ }, enabled = qty < shop.maxQty, modifier = Modifier.testTag("qtyPlus")) { Text("+") }
+        }
+        Button(
+            onClick = {
+                if (p.digital && !EMAIL.matches(email.trim())) {
+                    emailError = "Enter a valid email address."
+                    return@Button
+                }
+                shop.add(p.id, variant, qty, if (p.digital) email.trim() else null)
+                notice++
+            },
+            enabled = canAdd,
+            modifier = Modifier.fillMaxWidth().testTag("addToCart"),
+        ) { Text("Add to cart") }
+        Spacer(Modifier.height(64.dp))
+    }
+
+    Box(Modifier.fillMaxSize()) {
+        if (wide) {
+            Row(Modifier.fillMaxSize().padding(24.dp), horizontalArrangement = Arrangement.spacedBy(32.dp)) {
+                ProductImage(p.id, Modifier.weight(1f).fillMaxHeight())
+                Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp), content = details)
             }
-            Button(
-                onClick = {
-                    if (p.digital && !EMAIL.matches(email.trim())) {
-                        emailError = "Enter a valid email address."
-                        return@Button
-                    }
-                    shop.add(p.id, variant, qty, if (p.digital) email.trim() else null)
-                    notice++
-                },
-                enabled = canAdd,
-                modifier = Modifier.fillMaxWidth().testTag("addToCart"),
-            ) { Text("Add to cart") }
-            Spacer(Modifier.height(64.dp))
+        } else {
+            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                ProductImage(p.id, Modifier.fillMaxWidth().height(180.dp))
+                details()
+            }
         }
         if (notice > 0) {
             Surface(
@@ -326,7 +370,8 @@ fun ProductScreen(shop: Shop, id: String, onViewCart: () -> Unit) {
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("Added to cart", Modifier.weight(1f).testTag("addedNotice"),
                         color = MaterialTheme.colorScheme.inverseOnSurface)
-                    TextButton(onClick = onViewCart, modifier = Modifier.testTag("viewCart")) {
+                    TextButton(onClick = onViewCart, modifier = Modifier.testTag("viewCart")
+                        .onFocusChanged { viewCartFocused = it.isFocused }) {
                         Text("View cart", color = MaterialTheme.colorScheme.inversePrimary)
                     }
                 }
@@ -397,9 +442,14 @@ fun CartScreen(shop: Shop, onKeepShopping: () -> Unit, onCheckout: () -> Unit) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(value = codeText, onValueChange = { codeText = it }, singleLine = true,
-                            label = { Text("Discount code") },
-                            modifier = Modifier.weight(1f).testTag("codeField"))
+                        RemoteField(Modifier.weight(1f)) { m ->
+                            OutlinedTextField(value = codeText, onValueChange = { codeText = it }, singleLine = true,
+                                label = { Text("Discount code") },
+                                // Done applies it: on a TV, the keyboard's ✓ is how a remote gets there.
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                                keyboardActions = KeyboardActions(onDone = { focus.clearFocus(); shop.applyCode(codeText) }),
+                                modifier = Modifier.fillMaxWidth().then(m).dpadLeaves().testTag("codeField"))
+                        }
                         Spacer(Modifier.width(8.dp))
                         Button(onClick = { focus.clearFocus(); shop.applyCode(codeText) }, modifier = Modifier.testTag("applyCode")) { Text("Apply") }
                     }
