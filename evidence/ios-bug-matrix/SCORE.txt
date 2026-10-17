@@ -53,10 +53,12 @@ sort-as-text: caught by 1
 stale-badge: caught by 2
     checkout.test.json › A: two tees and a mug, WELCOME10, standard to NY
     shop.test.json › removing the last line asks first, and the badge goes
+stale-code-message: caught by 1
+    shop.test.json › codes refused, each saying why
 tax-before-discount: caught by 2
     checkout.test.json › A: two tees and a mug, WELCOME10, standard to NY
     checkout.test.json › B: MOBIUM5 takes $77.98 under the free-shipping line, CA
 xxl-no-surcharge: caught by 1
     shop.test.json › an XXL tee costs $2 more
 
-16 of 16 bugs caught
+17 of 17 bugs caught

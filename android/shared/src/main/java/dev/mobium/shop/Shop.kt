@@ -107,7 +107,10 @@ class Shop(private val prefs: SharedPreferences) {
             applied != null -> codeMessage = CodeMessage("Remove $applied to use another code.", true)
             c in spent -> codeMessage = CodeMessage("That code has already been used.", true)
             else -> when (val r = price(lines(), c, bugs = pricingBugs)) {
-                is Priced.CodeRefused -> codeMessage = CodeMessage(r.message, true)
+                // stale-code-message: a refusal over a refusal leaves the first one up.
+                is Priced.CodeRefused -> if (!(bug("stale-code-message") && codeMessage?.error == true)) {
+                    codeMessage = CodeMessage(r.message, true)
+                }
                 is Priced.Order -> {
                     code = c
                     codeTimes = 1

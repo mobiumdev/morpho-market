@@ -28,6 +28,7 @@ let bugs: [Bug] = [
     Bug(id: "sort-as-text", what: "Sorting by price compares prices as text."),
     Bug(id: "slow-catalog", what: "The catalog appears after 8 seconds."),
     Bug(id: "lost-delivery", what: "Going back from payment resets delivery to standard."),
+    Bug(id: "stale-code-message", what: "A code refused after another refused code keeps the first one's message."),
 ]
 let bugIDs = Set(bugs.map(\.id))
 
@@ -152,7 +153,11 @@ final class Shop {
             codeMessage = CodeMessage(text: "That code has already been used.", error: true)
         } else {
             switch price(lines, code: c, bugs: activePricingBugs) {
-            case let .codeRefused(m): codeMessage = CodeMessage(text: m, error: true)
+            case let .codeRefused(m):
+                // stale-code-message: a refusal over a refusal leaves the first one up.
+                if !(bug("stale-code-message") && codeMessage?.error == true) {
+                    codeMessage = CodeMessage(text: m, error: true)
+                }
             case .order:
                 code = c
                 codeTimes = 1

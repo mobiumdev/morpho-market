@@ -257,6 +257,7 @@ link is also the reset for a real iPhone, which has no clear-data. A hidden
 | `sort-as-text` | price sort compares "$5.99" > "$24.00" as text | sort order |
 | `slow-catalog` | the catalog appears after 8 s, after every launch and every reset | a test that does not wait |
 | `lost-delivery` | going back from payment resets delivery to standard | the review's shipping |
+| `stale-code-message` | a code refused after another refused code keeps the first one's message | codes refused, each saying why — only while one session types them in turn |
 
 A test suite is scored by which of these bugs it catches: each must fail at
 least one test, and with none on, every test must pass.
