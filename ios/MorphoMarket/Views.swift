@@ -122,10 +122,12 @@ struct CatalogView: View {
                     .onLongPressGesture { router.push(.bugs) }
             }
         }
-        .task {
-            if shop.bug("slow-catalog") && !shop.catalogShown {
-                loading = true
-                try? await Task.sleep(for: .seconds(8))
+        .task(id: shop.resets) {
+            // A reset cancels this task and starts it again: a cancelled sleep
+            // returns at once, and must not show the catalog early.
+            loading = shop.bug("slow-catalog") && !shop.catalogShown
+            if loading {
+                do { try await Task.sleep(for: .seconds(8)) } catch { return }
                 loading = false
             }
             shop.catalogShown = true
@@ -375,6 +377,7 @@ struct BugsView: View {
     var body: some View {
         List {
             Text("Deliberate bugs, for testing. Each stays on until turned off.").font(.callout)
+            Text("Process \(shop.pid)").font(.caption).accessibilityIdentifier("processId")
             ForEach(bugs) { b in
                 Toggle(isOn: Binding(get: { shop.bug(b.id) },
                                      set: { $0 ? shop.setBugs(on: [b.id], off: []) : shop.setBugs(on: [], off: [b.id]) })) {

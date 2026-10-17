@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import os
 
 // The bug switch (SPEC.md, "The bug switch"), the store's state, and
 // checkout's rules: the same as the Android app's Bugs.kt, Shop.kt and
@@ -90,8 +91,14 @@ final class Shop {
     private(set) var badge = 0
     private(set) var orders: [Order] = []
     private var orderCounter = 0
-    /// Once per process: the slow-catalog bug delays the first showing only.
+    /// The slow-catalog bug delays the catalog's first showing after the store
+    /// is made or reset, so every test that starts from a reset meets it.
     var catalogShown = false
+    /// Counts resets, so a catalog already on screen loads again after one.
+    private(set) var resets = 0
+    /// This process, shown on the bug screen and logged, to tell a relaunch from a reset.
+    @ObservationIgnored let pid = ProcessInfo.processInfo.processIdentifier
+    @ObservationIgnored private let log = Logger(subsystem: "dev.mobium.shop", category: "process")
 
     @ObservationIgnored private let defaults: UserDefaults
     private static let key = "shop"
@@ -102,6 +109,7 @@ final class Shop {
             cart = s.cart; code = s.code; codeTimes = s.codeTimes; bugs = s.bugs; spent = s.spent
             badge = s.badge; orders = s.orders; orderCounter = s.orderCounter
         }
+        log.notice("process \(self.pid, privacy: .public): store made")
     }
 
     func bug(_ id: String) -> Bool { bugs.contains(id) }
@@ -223,7 +231,10 @@ final class Shop {
         badge = 0
         orders = []
         orderCounter = 0
+        catalogShown = false
+        resets += 1
         save()
+        log.notice("process \(self.pid, privacy: .public): reset")
     }
 
     private func save() {

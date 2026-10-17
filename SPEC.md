@@ -255,7 +255,7 @@ link is also the reset for a real iPhone, which has no clear-data. A hidden
 | `declined-succeeds` | the declined card places an order | the declined card |
 | `double-order` | Place order is not disabled while placing; two taps, two orders | Orders count |
 | `sort-as-text` | price sort compares "$5.99" > "$24.00" as text | sort order |
-| `slow-catalog` | the catalog appears after 8 s | a test that does not wait |
+| `slow-catalog` | the catalog appears after 8 s, after every launch and every reset | a test that does not wait |
 | `lost-delivery` | going back from payment resets delivery to standard | the review's shipping |
 
 A test suite is scored by which of these bugs it catches: each must fail at

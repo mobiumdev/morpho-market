@@ -142,12 +142,12 @@ fun CatalogScreen(shop: Shop, columns: Int = 2, imageHeight: Dp = 110.dp, focusO
     var category by remember { mutableStateOf<Category?>(null) }
     var sort by remember { mutableStateOf(Sort.FEATURED) }
     var sortOpen by remember { mutableStateOf(false) }
-    var loading by remember { mutableStateOf(shop.bug("slow-catalog") && !shop.catalogShown) }
+    var loading by remember(shop.resets) { mutableStateOf(shop.bug("slow-catalog") && !shop.catalogShown) }
     // A lazy grid keeps its first visible item in place when the list changes,
     // so a new sort or filter would open partway down: start it at the top.
     val grid = rememberLazyGridState()
     LaunchedEffect(sort, category, query) { grid.scrollToItem(0) }
-    LaunchedEffect(loading) {
+    LaunchedEffect(loading, shop.resets) {
         if (loading) delay(8000)
         loading = false
         shop.catalogShown = true
@@ -511,6 +511,10 @@ fun BugsScreen(shop: Shop) {
         item {
             Text("Deliberate bugs, for testing. Each stays on until turned off.",
                 style = MaterialTheme.typography.bodyMedium)
+        }
+        item {
+            Text("Process ${shop.pid}", style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("processId"))
         }
         items(BUGS, key = { it.id }) { b ->
             Row(verticalAlignment = Alignment.CenterVertically) {
