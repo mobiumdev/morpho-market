@@ -22,6 +22,7 @@ val BUGS: List<Bug> = listOf(
     Bug("sort-as-text", "Sorting by price compares prices as text."),
     Bug("slow-catalog", "The catalog appears after 8 seconds."),
     Bug("lost-delivery", "Going back from payment resets delivery to standard."),
+    Bug("stale-code-message", "A code refused after another refused code keeps the first one's message."),
 )
 
 val BUG_IDS: Set<String> = BUGS.map { it.id }.toSet()

@@ -217,15 +217,17 @@ Mobium at `2e37123`:
 | | Android | iOS |
 |---|---|---|
 | The suite, no bug on | 25 of 25 | 25 of 25 |
-| Bugs caught | **16 of 16** | **16 of 16** |
+| Bugs caught | **17 of 17** | **17 of 17** |
 
 The same tests catch each bug on both platforms. `slow-catalog`, a catalog
-that appears after 8 seconds, fails every test on both.
+that appears after 8 seconds, fails every test on both. The seventeenth,
+`stale-code-message`, was added on 2026-10-17 and run with Mobium at
+`bfcb09f`.
 
 **On a TV**, the one test (Android TV emulator, Android 14): with no bug on
-it passes, and it catches 3 of the 16 bugs (`slow-catalog`, `stale-badge`,
-`tax-before-discount`), exactly the bugs the phone's checkout test A catches
-on its own. The other bugs are caught on the phones by tests the TV does not
+it passes, and it catches 3 of the 16 bugs it was run against
+(`slow-catalog`, `stale-badge`, `tax-before-discount`), exactly the bugs
+the phone's checkout test A catches on its own. The other bugs are caught on the phones by tests the TV does not
 have yet. The JUnit results and scores are in [evidence/](evidence/README.md).
 
 ## License
