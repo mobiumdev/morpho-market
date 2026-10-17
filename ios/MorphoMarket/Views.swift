@@ -123,7 +123,7 @@ struct CatalogView: View {
             }
         }
         .task(id: shop.resets) {
-            // A reset cancels this task and starts it again: a cancelled sleep
+            // A reset cancels this task and starts it again: a canceled sleep
             // returns at once, and must not show the catalog early.
             loading = shop.bug("slow-catalog") && !shop.catalogShown
             if loading {
