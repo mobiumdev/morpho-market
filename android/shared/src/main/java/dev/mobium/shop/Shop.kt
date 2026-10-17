@@ -1,6 +1,8 @@
 package dev.mobium.shop
 
 import android.content.SharedPreferences
+import android.os.Process
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -8,6 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import org.json.JSONArray
 import org.json.JSONObject
+
+/** What `adb logcat -s MorphoMarket` shows: the process and each reset. */
+const val LOG_TAG = "MorphoMarket"
 
 /** A line in the cart. A gift card keeps its recipient, which pricing never reads. */
 data class CartLine(val id: String, val variant: String?, val qty: Int, val email: String? = null) {
@@ -46,11 +51,21 @@ class Shop(private val prefs: SharedPreferences) {
     val orders = mutableStateListOf<Order>()
     private var orderCounter = 0
 
-    /** Once per process: the slow-catalog bug delays the first showing only. */
+    /**
+     * The slow-catalog bug delays the catalog's first showing after the store
+     * is made or reset, so every test that starts from a reset meets it.
+     */
     var catalogShown = false
+    /** Counts resets, so a catalog already on screen loads again after one. */
+    var resets by mutableIntStateOf(0)
+        private set
+
+    /** This process, shown on the bug screen and logged, to tell a relaunch from a reset. */
+    val pid: Int = Process.myPid()
 
     init {
         load()
+        Log.i(LOG_TAG, "process $pid: store made")
     }
 
     fun bug(id: String) = id in bugs
@@ -176,7 +191,10 @@ class Shop(private val prefs: SharedPreferences) {
         badge = 0
         orders.clear()
         orderCounter = 0
+        catalogShown = false
+        resets += 1
         save()
+        Log.i(LOG_TAG, "process $pid: reset")
     }
 
     private fun save() {
