@@ -175,6 +175,31 @@ extension View {
     }
 }
 
+/// A tappable card that stays a container: a SwiftUI Button would merge its
+/// label into one element, and the price inside would lose its id. On a TV it
+/// is a Button all the same, since only a button takes the remote's focus.
+struct Tappable: ViewModifier {
+    let id: String
+    var selected = false
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        #if os(tvOS)
+        Button(action: action) { content }
+            .buttonStyle(.card)
+            .accessibilityAddTraits(selected ? .isSelected : [])
+            .accessibilityIdentifier(id)
+        #else
+        content
+            .contentShape(Rectangle())
+            .onTapGesture(perform: action)
+            .accessibilityElement(children: .contain)
+            .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+            .accessibilityIdentifier(id)
+        #endif
+    }
+}
+
 let morpho = Color(red: 0x15 / 255, green: 0x65 / 255, blue: 0xC0 / 255)
 
 /// A product's photograph (product_<id>.jpg in the bundle), filling whatever
@@ -255,4 +280,47 @@ var cardBackground: Color {
     #else
     Color(.secondarySystemBackground)
     #endif
+}
+
+/// A choice among a few options: a menu on a phone. On a TV a menu's items
+/// carry no ids — tvOS reports each as a bare cell — so there the options
+/// are buttons in a sheet, which opens with focus on the first and closes on
+/// a choice, giving focus back to the button that opened it.
+struct Choice<Option: Hashable>: View {
+    let id: String
+    let label: String
+    let options: [Option]
+    let optionLabel: (Option) -> String
+    let optionID: (Option) -> String
+    let pick: (Option) -> Void
+    #if os(tvOS)
+    @State private var open = false
+    #endif
+
+    var body: some View {
+        #if os(tvOS)
+        Button(label) { open = true }
+            .accessibilityIdentifier(id)
+            .sheet(isPresented: $open) {
+                VStack(spacing: 16) {
+                    ForEach(options, id: \.self) { o in
+                        Button(optionLabel(o)) {
+                            pick(o)
+                            open = false
+                        }
+                        .accessibilityIdentifier(optionID(o))
+                    }
+                }
+            }
+        #else
+        Menu {
+            ForEach(options, id: \.self) { o in
+                Button(optionLabel(o)) { pick(o) }.accessibilityIdentifier(optionID(o))
+            }
+        } label: {
+            Text(label)
+        }
+        .accessibilityIdentifier(id)
+        #endif
+    }
 }

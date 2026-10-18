@@ -318,6 +318,14 @@ on select rather than on focus; Done moving on to the next field; and the
 and text as the phone, so `tests-tv/tv.test.json` asserts what the phone's
 checkout test A asserts, reaching each control with the D-pad.
 
+The Apple TV app (`ios`, target `MorphoMarketTV`, the same `dev.mobium.shop.tv`)
+is the iPhone app's store and screens compiled for tvOS, with the TV shell's
+bar and layout. It takes the same links. Where tvOS differs it is said in the
+README: every control a button, the categories first on the catalog, a
+choice as a sheet, and plain text for the email field.
+`tests-appletv/appletv.test.json` asserts what the Fire TV test asserts, with
+the presses tvOS's focus engine takes.
+
 ## Open questions
 
 1. **Real merch**: are any of these meant to exist (print on demand)? That

@@ -1,0 +1,6 @@
+{
+  "testDir": ".",
+  "projects": [
+    {"name": "appletv", "device": "${MOBIUM_APPLETV_DEVICE}", "driver": "wda"}
+  ]
+}

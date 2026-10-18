@@ -20,29 +20,6 @@ private func listPrice(_ p: Product) -> Int { p.digital ? giftAmounts.values.min
 
 private func priceText(_ p: Product) -> String { p.digital ? "\(money(2500)) or \(money(5000))" : money(p.cents) }
 
-/// A tappable card that stays a container: a SwiftUI Button would merge its
-/// label into one element, and the price inside would lose its id. On a TV it
-/// is a Button all the same, since only a button takes the remote's focus.
-private struct Tappable: ViewModifier {
-    let id: String
-    let action: () -> Void
-
-    func body(content: Content) -> some View {
-        #if os(tvOS)
-        Button(action: action) { content }
-            .buttonStyle(.card)
-            .accessibilityIdentifier(id)
-        #else
-        content
-            .contentShape(Rectangle())
-            .onTapGesture(perform: action)
-            .accessibilityElement(children: .contain)
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier(id)
-        #endif
-    }
-}
-
 struct CatalogView: View {
     @Environment(Shop.self) private var shop
     @Environment(Router.self) private var router
@@ -163,14 +140,8 @@ struct CatalogView: View {
     }
 
     private var sortMenu: some View {
-        Menu {
-            ForEach(Sort.allCases, id: \.self) { s in
-                Button(s.label) { sort = s }.accessibilityIdentifier("sort_\(s.rawValue)")
-            }
-        } label: {
-            Text("Sort: \(sort.label)")
-        }
-        .accessibilityIdentifier("sortMenu")
+        Choice(id: "sortMenu", label: "Sort: \(sort.label)", options: Sort.allCases, optionLabel: \.label,
+               optionID: { "sort_\($0.rawValue)" }) { sort = $0 }
     }
 
     private func chip(_ label: String, selected: Bool, id: String, action: @escaping () -> Void) -> some View {
