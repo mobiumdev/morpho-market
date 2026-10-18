@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="mobium test" tests="1" failures="1" time="104.511">
-  <testsuite name="appletv › appletv.test.json" tests="1" failures="1" time="104.511">
-    <testcase name="A on Apple TV: two tees and a mug, WELCOME10, standard to NY" classname="appletv.appletv.test.json" time="104.511">
-      <failure message="step 86 of 86 (app_wait_for) failed: timed out after 10.045s waiting for label=&#34;Cart, 0 items&#34; to become visible — it is not on screen; steps 1-85 ran before it, and nothing after" type="timeout">step 146 (app_wait_for): [timeout] step 86 of 86 (app_wait_for) failed: timed out after 10.045s waiting for label=&#34;Cart, 0 items&#34; to become visible — it is not on screen; steps 1-85 ran before it, and nothing after</failure>
+<testsuites name="mobium test" tests="1" failures="1" time="104.291">
+  <testsuite name="appletv › appletv.test.json" tests="1" failures="1" time="104.291">
+    <testcase name="A on Apple TV: two tees and a mug, WELCOME10, standard to NY" classname="appletv.appletv.test.json" time="104.291">
+      <failure message="step 86 of 86 (app_wait_for) failed: timed out after 10.121s waiting for label=&#34;Cart, 0 items&#34; to become visible — it is not on screen; steps 1-85 ran before it, and nothing after" type="timeout">step 146 (app_wait_for): [timeout] step 86 of 86 (app_wait_for) failed: timed out after 10.121s waiting for label=&#34;Cart, 0 items&#34; to become visible — it is not on screen; steps 1-85 ran before it, and nothing after</failure>
     </testcase>
   </testsuite>
 </testsuites>

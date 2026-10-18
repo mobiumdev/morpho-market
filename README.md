@@ -227,9 +227,10 @@ MOBIUM_TV_DEVICE=<serial> mobium test --config tests-tv/tv.config.json   # a TV,
 MOBIUM_APPLETV_DEVICE=<udid> mobium test --config tests-appletv/appletv.config.json   # an Apple TV simulator
 ```
 
-The Apple TV's test needs Mobium with mobiumdev/mobium#227, #228 and #229:
-typing through tvOS's keyboard screen, a dialog rule answered with the
-remote, and the `selected` condition.
+The Apple TV's test needs Mobium `9337299` or later
+(mobiumdev/mobium#227, #228 and #229): typing through tvOS's keyboard
+screen, a dialog rule answered with the remote, and the `selected`
+condition.
 
 Edit `tests/mobium.config.json` to name another Android device. The TV's
 test is the phone suite's checkout test A, driven as a person on a sofa

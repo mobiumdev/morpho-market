@@ -16,7 +16,7 @@ ran on 2026-10-17 with Mobium at `bfcb09f`, the same suite run by
 [mobium-roundtrip](https://github.com/mobiumdev/mobium-roundtrip)'s
 `tools/morpho_run.sh`, and its control passed 25 of 25 on both. The TV has
 not been run against it. The Apple TV's ran on 2026-10-17, all seventeen,
-with Mobium at `2dc186c` and the three changes it needs merged in
+with Mobium at `9337299`, the first commit with the three changes it needs
 (mobiumdev/mobium#227, #228, #229).
 
 | File | What it is |
