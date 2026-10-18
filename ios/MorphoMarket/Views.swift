@@ -21,24 +21,32 @@ private func listPrice(_ p: Product) -> Int { p.digital ? giftAmounts.values.min
 private func priceText(_ p: Product) -> String { p.digital ? "\(money(2500)) or \(money(5000))" : money(p.cents) }
 
 /// A tappable card that stays a container: a SwiftUI Button would merge its
-/// label into one element, and the price inside would lose its id.
+/// label into one element, and the price inside would lose its id. On a TV it
+/// is a Button all the same, since only a button takes the remote's focus.
 private struct Tappable: ViewModifier {
     let id: String
     let action: () -> Void
 
     func body(content: Content) -> some View {
+        #if os(tvOS)
+        Button(action: action) { content }
+            .buttonStyle(.card)
+            .accessibilityIdentifier(id)
+        #else
         content
             .contentShape(Rectangle())
             .onTapGesture(perform: action)
             .accessibilityElement(children: .contain)
             .accessibilityAddTraits(.isButton)
             .accessibilityIdentifier(id)
+        #endif
     }
 }
 
 struct CatalogView: View {
     @Environment(Shop.self) private var shop
     @Environment(Router.self) private var router
+    @Environment(\.shopLayout) private var layout
     @State private var query = ""
     @State private var category: Category?
     @State private var sort: Sort = .featured
@@ -61,35 +69,28 @@ struct CatalogView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            TextField("Search", text: $query)
-                .textFieldStyle(.roundedBorder)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .accessibilityIdentifier("searchField")
+            if layout.remote {
+                // A remote starts on the first control, so the categories come
+                // first: the first press down reaches the first card, and the
+                // search field, whose keyboard takes the screen, is passed by.
+                chips
+                HStack(spacing: 24) {
+                    count
+                    Spacer()
+                    search.frame(width: 560)
+                    sortMenu
+                }
                 .padding(.horizontal)
-            ScrollView(.horizontal, showsIndicators: false) {
+            } else {
+                search.padding(.horizontal)
+                chips
                 HStack {
-                    chip("All", selected: category == nil, id: "category_all") { category = nil }
-                    ForEach(Category.allCases, id: \.self) { c in
-                        chip(c.label, selected: category == c, id: "category_\(c.rawValue)") { category = c }
-                    }
+                    count
+                    Spacer()
+                    sortMenu
                 }
                 .padding(.horizontal)
             }
-            HStack {
-                let n = shown.count
-                Text("\(n) item\(n == 1 ? "" : "s")").accessibilityIdentifier("resultCount")
-                Spacer()
-                Menu {
-                    ForEach(Sort.allCases, id: \.self) { s in
-                        Button(s.label) { sort = s }.accessibilityIdentifier("sort_\(s.rawValue)")
-                    }
-                } label: {
-                    Text("Sort: \(sort.label)")
-                }
-                .accessibilityIdentifier("sortMenu")
-            }
-            .padding(.horizontal)
             if loading {
                 Spacer()
                 ProgressView().accessibilityIdentifier("catalogLoading")
@@ -101,7 +102,7 @@ struct CatalogView: View {
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: layout.catalogColumns), spacing: 12) {
                             ForEach(shown) { p in card(p).id(p.id) }
                         }
                         .padding()
@@ -113,6 +114,7 @@ struct CatalogView: View {
                 }
             }
         }
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -122,6 +124,7 @@ struct CatalogView: View {
                     .onLongPressGesture { router.push(.bugs) }
             }
         }
+        #endif
         .task(id: shop.resets) {
             // A reset cancels this task and starts it again: a canceled sleep
             // returns at once, and must not show the catalog early.
@@ -132,6 +135,42 @@ struct CatalogView: View {
             }
             shop.catalogShown = true
         }
+    }
+
+    private var search: some View {
+        TextField("Search", text: $query)
+            .roundedField()
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+            .accessibilityIdentifier("searchField")
+    }
+
+    private var chips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                chip("All", selected: category == nil, id: "category_all") { category = nil }
+                ForEach(Category.allCases, id: \.self) { c in
+                    chip(c.label, selected: category == c, id: "category_\(c.rawValue)") { category = c }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    private var count: some View {
+        let n = shown.count
+        return Text("\(n) item\(n == 1 ? "" : "s")").accessibilityIdentifier("resultCount")
+    }
+
+    private var sortMenu: some View {
+        Menu {
+            ForEach(Sort.allCases, id: \.self) { s in
+                Button(s.label) { sort = s }.accessibilityIdentifier("sort_\(s.rawValue)")
+            }
+        } label: {
+            Text("Sort: \(sort.label)")
+        }
+        .accessibilityIdentifier("sortMenu")
     }
 
     private func chip(_ label: String, selected: Bool, id: String, action: @escaping () -> Void) -> some View {
@@ -147,7 +186,7 @@ struct CatalogView: View {
 
     private func card(_ p: Product) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            ProductImage(id: p.id).frame(height: 100)
+            ProductImage(id: p.id).frame(height: layout.catalogImageHeight)
             Text(p.name).font(.subheadline).lineLimit(2)
             Text(priceText(p)).font(.subheadline.weight(.semibold)).accessibilityIdentifier("price_\(p.id)")
             if p.outOfStock {
@@ -156,7 +195,7 @@ struct CatalogView: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(cardBackground))
         .modifier(Tappable(id: "product_\(p.id)") { router.push(.product(p.id)) })
     }
 }
@@ -173,6 +212,8 @@ private func optionPrefix(_ p: Product) -> String {
 struct ProductView: View {
     @Environment(Shop.self) private var shop
     @Environment(Router.self) private var router
+    @Environment(\.shopLayout) private var layout
+    @FocusState private var viewCartFocused: Bool
     let id: String
     @State private var variant: String?
     @State private var qty = 1
@@ -191,8 +232,10 @@ struct ProductView: View {
 
         ZStack(alignment: .bottom) {
             ScrollView {
+                HStack(alignment: .top, spacing: 40) {
+                if layout.wideProduct { ProductImage(id: p.id).frame(width: 560, height: 560) }
                 VStack(alignment: .leading, spacing: 12) {
-                    ProductImage(id: p.id).frame(height: 170)
+                    if !layout.wideProduct { ProductImage(id: p.id).frame(height: 170) }
                     Text(p.name).font(.title2).accessibilityIdentifier("productTitle")
                     Text(shownPrice).font(.title3.weight(.semibold)).accessibilityIdentifier("productPrice")
                     Text(p.blurb).font(.body)
@@ -201,19 +244,12 @@ struct ProductView: View {
                     }
                     if needsVariant {
                         Text(p.optionName!).font(.headline)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(p.variants, id: \.self) { v in
-                                    Button { variant = v.id } label: {
-                                        Text(v.label).padding(.horizontal, 12).padding(.vertical, 6)
-                                            .background(Capsule().fill(variant == v.id ? Color.accentColor.opacity(0.18) : .clear))
-                                            .overlay(Capsule().stroke(Color.secondary.opacity(0.5)))
-                                    }
-                                    .buttonStyle(.plain)
-                                    .accessibilityAddTraits(variant == v.id ? .isSelected : [])
-                                    .accessibilityIdentifier("\(optionPrefix(p))_\(v.id)")
-                                }
-                            }
+                        // A TV has the width for every option, and a scrolling
+                        // row would hold the remote's focus inside it.
+                        if layout.remote {
+                            variants(p)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) { variants(p) }
                         }
                         if let v = variant, p.outOfStockVariants.contains(v) {
                             Text("Out of stock in \(p.variants.first { $0.id == v }!.label)")
@@ -222,7 +258,7 @@ struct ProductView: View {
                     }
                     if p.digital {
                         TextField("Recipient email", text: $email)
-                            .textFieldStyle(.roundedBorder)
+                            .roundedField()
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -253,6 +289,7 @@ struct ProductView: View {
                     .accessibilityIdentifier("addToCart")
                     Spacer(minLength: 64)
                 }
+                }
                 .padding()
             }
             if notice > 0 {
@@ -260,14 +297,40 @@ struct ProductView: View {
                     Text("Added to cart").foregroundStyle(.white).accessibilityIdentifier("addedNotice")
                     Spacer()
                     Button("View cart") { router.go(.cart) }.foregroundStyle(.cyan).accessibilityIdentifier("viewCart")
+                        .focused($viewCartFocused)
                 }
                 .padding()
                 .background(RoundedRectangle(cornerRadius: 10).fill(Color(white: 0.2)))
                 .padding()
+                #if os(tvOS)
+                // It stays while its View cart has focus: a remote takes
+                // longer than four seconds to reach it.
+                .task(id: [notice, viewCartFocused ? 1 : 0]) {
+                    if viewCartFocused { return }
+                    do { try await Task.sleep(for: .seconds(4)) } catch { return }
+                    notice = 0
+                }
+                #else
                 .task(id: notice) {
                     try? await Task.sleep(for: .seconds(4))
                     notice = 0
                 }
+                #endif
+            }
+        }
+    }
+
+    private func variants(_ p: Product) -> some View {
+        HStack {
+            ForEach(p.variants, id: \.self) { v in
+                Button { variant = v.id } label: {
+                    Text(v.label).padding(.horizontal, 12).padding(.vertical, 6)
+                        .background(Capsule().fill(variant == v.id ? Color.accentColor.opacity(0.18) : .clear))
+                        .overlay(Capsule().stroke(Color.secondary.opacity(0.5)))
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(variant == v.id ? .isSelected : [])
+                .accessibilityIdentifier("\(optionPrefix(p))_\(v.id)")
             }
         }
     }
@@ -307,15 +370,17 @@ struct CartView: View {
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("line_\(line.key)")
+                #if os(iOS)
                 .swipeActions {
                     Button("Remove", role: .destructive) { confirm = line }
                 }
+                #endif
             }
             if !shop.cart.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
                         TextField("Discount code", text: $codeText)
-                            .textFieldStyle(.roundedBorder)
+                            .roundedField()
                             .textInputAutocapitalization(.characters)
                             .autocorrectionDisabled()
                             .accessibilityIdentifier("codeField")
@@ -358,8 +423,10 @@ struct CartView: View {
             }
         }
         .accessibilityIdentifier("cartList")
+        #if os(iOS)
         .navigationTitle("Cart")
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .alert(confirm.map { "Remove \($0.label)?" } ?? "", isPresented: Binding(get: { confirm != nil }, set: { if !$0 { confirm = nil } })) {
             Button("Remove", role: .destructive) {
                 if let c = confirm { shop.remove(c.key) }

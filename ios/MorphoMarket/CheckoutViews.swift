@@ -91,7 +91,7 @@ private struct Field: View {
                     TextField(label, text: $text)
                 }
             }
-            .textFieldStyle(.roundedBorder)
+            .roundedField()
             .keyboardType(keyboard)
             .autocorrectionDisabled()
             .accessibilityIdentifier("field_\(id)")
@@ -258,7 +258,7 @@ struct ConfirmationView: View {
     var body: some View {
         if let o = shop.orders.first(where: { $0.number == number }) {
             VStack(spacing: 12) {
-                Butterfly(color: Color(red: 0x15 / 255, green: 0x65 / 255, blue: 0xC0 / 255)).frame(width: 120, height: 120)
+                Butterfly(color: morpho).frame(width: 120, height: 120)
                 Text("Order \(o.number) placed").font(.title2).accessibilityIdentifier("orderNumber")
                 Text(money(o.total)).font(.title3).accessibilityIdentifier("confirmTotal")
                 Text("A receipt is on its way to \(o.address.email).")
@@ -300,8 +300,10 @@ struct OrdersView: View {
                 .accessibilityIdentifier("orderList")
             }
         }
+        #if os(iOS)
         .navigationTitle("Orders")
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 
