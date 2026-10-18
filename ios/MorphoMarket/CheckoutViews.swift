@@ -56,11 +56,7 @@ struct DeliveryView: View {
                         Text(cost == 0 ? "Free" : money(cost)).accessibilityIdentifier("shipPrice_\(m.rawValue)")
                     }
                     .padding(.vertical, 10)
-                    .contentShape(Rectangle())
-                    .onTapGesture { checkout.method = m }
-                    .accessibilityElement(children: .contain)
-                    .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-                    .accessibilityIdentifier("ship_\(m.rawValue)")
+                    .modifier(Tappable(id: "ship_\(m.rawValue)", selected: selected) { checkout.method = m })
                 }
                 if case let .order(o) = price(shop.lines, code: shop.code, method: checkout.method, bugs: shop.activePricingBugs,
                                               times: shop.codeTimes) {
@@ -82,6 +78,18 @@ private struct Field: View {
     var keyboard: UIKeyboardType = .default
     var secret = false
 
+    /// tvOS answers an email keyboard with a screen of its own first, the
+    /// email addresses the TV has been given before, so what select opens
+    /// depends on the TV's history. The TV asks for plain text, and meets
+    /// the keyboard every time.
+    private var fieldKeyboard: UIKeyboardType {
+        #if os(tvOS)
+        keyboard == .emailAddress ? .default : keyboard
+        #else
+        keyboard
+        #endif
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Group {
@@ -91,8 +99,8 @@ private struct Field: View {
                     TextField(label, text: $text)
                 }
             }
-            .textFieldStyle(.roundedBorder)
-            .keyboardType(keyboard)
+            .roundedField()
+            .keyboardType(fieldKeyboard)
             .autocorrectionDisabled()
             .accessibilityIdentifier("field_\(id)")
             if let error { Text(error).font(.caption).foregroundStyle(.red).accessibilityIdentifier("error_\(id)") }
@@ -117,14 +125,11 @@ struct AddressView: View {
                 if full {
                     Field(id: "street", label: "Street address", text: $checkout.address.street, error: errors["street"])
                     Field(id: "city", label: "City", text: $checkout.address.city, error: errors["city"])
-                    Menu {
-                        ForEach(taxStates, id: \.self) { st in
-                            Button(st) { checkout.address.state = st }.accessibilityIdentifier("state_\(st)")
-                        }
-                    } label: {
-                        Text(checkout.address.state.isEmpty ? "Choose a state" : "State: \(checkout.address.state)")
+                    Choice(id: "statePicker",
+                           label: checkout.address.state.isEmpty ? "Choose a state" : "State: \(checkout.address.state)",
+                           options: taxStates, optionLabel: { $0 }, optionID: { "state_\($0)" }) {
+                        checkout.address.state = $0
                     }
-                    .accessibilityIdentifier("statePicker")
                     if let e = errors["state"] { Text(e).font(.caption).foregroundStyle(.red).accessibilityIdentifier("error_state") }
                     Text("We ship to CA, NY, OR, TX and WA.").font(.caption)
                     Field(id: "zip", label: "ZIP code", text: $checkout.address.zip, error: errors["zip"], keyboard: .numberPad)
@@ -258,7 +263,7 @@ struct ConfirmationView: View {
     var body: some View {
         if let o = shop.orders.first(where: { $0.number == number }) {
             VStack(spacing: 12) {
-                Butterfly(color: Color(red: 0x15 / 255, green: 0x65 / 255, blue: 0xC0 / 255)).frame(width: 120, height: 120)
+                Butterfly(color: morpho).frame(width: 120, height: 120)
                 Text("Order \(o.number) placed").font(.title2).accessibilityIdentifier("orderNumber")
                 Text(money(o.total)).font(.title3).accessibilityIdentifier("confirmTotal")
                 Text("A receipt is on its way to \(o.address.email).")
@@ -290,18 +295,16 @@ struct OrdersView: View {
                             Spacer()
                             Text(money(o.total)).fontWeight(.semibold)
                         }
-                        .contentShape(Rectangle())
-                        .onTapGesture { router.push(.receipt(o.number)) }
-                        .accessibilityElement(children: .contain)
-                        .accessibilityAddTraits(.isButton)
-                        .accessibilityIdentifier("order_\(o.number)")
+                        .modifier(Tappable(id: "order_\(o.number)") { router.push(.receipt(o.number)) })
                     }
                 }
                 .accessibilityIdentifier("orderList")
             }
         }
+        #if os(iOS)
         .navigationTitle("Orders")
         .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 

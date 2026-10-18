@@ -2,7 +2,8 @@
 
 A store for [Mobium](https://github.com/mobiumdev/mobium) merch, built
 natively twice, in **SwiftUI** for iOS and **Jetpack Compose** for Android,
-and for TVs: **Fire TV**, Android TV and Google TV, driven with a remote. It
+and for TVs: **Fire TV**, Android TV and Google TV, and **Apple TV**, driven
+with a remote. It
 is an *app under test*: a full checkout with discount codes, tax and
 shipping, and a switch of **deliberate bugs** that a test suite can be
 scored against.
@@ -55,6 +56,7 @@ and an Android TV emulator (Android 14, 1080p), with Mobium at `74ce9e9`.
 - [What is in it](#what-is-in-it)
 - [Build and install](#build-and-install)
 - [On a TV](#on-a-tv)
+- [On an Apple TV](#on-an-apple-tv)
 - [Run the tests](#run-the-tests)
 - [The bug switch](#the-bug-switch)
 - [Results](#results)
@@ -143,6 +145,21 @@ installing. The app runs on Android 7.1 and later,
 which is Fire OS 6, 7 and 8. On the Android TV emulator it is listed under
 Installed Apps with its banner. It has not yet been run on a real Fire TV.
 
+**An Apple TV** (the iOS toolchain, with the tvOS simulator platform:
+`xcodebuild -downloadPlatform tvOS`):
+
+```sh
+cd ios
+xcodegen generate
+xcodebuild -project MorphoMarket.xcodeproj -scheme MorphoMarketTV -configuration Release \
+  -destination 'generic/platform=tvOS Simulator' -derivedDataPath build build
+xcrun simctl install <apple-tv-udid> "build/Build/Products/Release-appletvsimulator/Morpho Market.app"
+```
+
+The app id is the Fire TV app's, `dev.mobium.shop.tv`, and it runs on tvOS
+17 and later. It has been run on the Apple TV 4K simulator, tvOS 26.5, and
+not yet on a real Apple TV.
+
 ## On a TV
 
 The TV app is the same store: the same catalog, prices, codes, bug switch and
@@ -167,6 +184,36 @@ differ between the phone and the TV. What changes is what a remote needs:
 The phone app shares those screens and behaves exactly as before: each change
 applies only where a remote drives the app.
 
+## On an Apple TV
+
+The Apple TV app is the iPhone app's model and screens, compiled for tvOS
+with a TV's layout: the same catalog, prices, codes and bug switch, from the
+same Swift files, and the Fire TV app's bar across the top, its ids and its
+app id. The remote's Menu button is Back, and coming back from a product
+gives its card focus again, as tvOS does. What tvOS needed:
+
+- **Every control is a button.** tvOS gives focus only to what can take it,
+  so a card, a shipping option and an order are buttons on the TV.
+- **The categories come first** on the catalog, so focus starts on them and
+  the first press down reaches the first product.
+- **A choice opens a sheet.** A menu's items carry no ids on tvOS, so the
+  state and the sort order are buttons in a sheet there, focus on the first.
+- **The email field asks for plain text.** tvOS answers an email keyboard
+  with the email addresses the TV has been given before, so what select
+  opens would depend on the TV's history.
+
+| Catalog | Product | Cart | Review | Placed |
+|---|---|---|---|---|
+| <img src="docs/media/appletv-catalog.png" width="170" alt="Apple TV catalog in five columns, focus on the Logo Tee"> | <img src="docs/media/appletv-product.png" width="170" alt="Apple TV product page: the photograph beside size M chosen and quantity 2"> | <img src="docs/media/appletv-cart.png" width="170" alt="Apple TV cart with WELCOME10 applied"> | <img src="docs/media/appletv-review.png" width="170" alt="Apple TV review: total $69.23, focus on Place order"> | <img src="docs/media/appletv-placed.png" width="170" alt="Apple TV: order MS-000001 placed, $69.23"> |
+
+Its test, `tests-appletv/appletv.test.json`, is the Fire TV test's checkout
+with the presses tvOS's focus engine takes: on a product page focus starts
+on the first size, so M is right, right, where the Fire TV goes down, left.
+Every assertion is the Fire TV test's, and the size chosen is read as
+selected, which is what SwiftUI says it is. tvOS types into a keyboard
+screen of its own: select opens it for the field with focus, `fill` types
+there, and hiding it keeps the text.
+
 ## Run the tests
 
 Install [Mobium](https://github.com/mobiumdev/mobium) (`go install
@@ -177,7 +224,13 @@ root:
 mobium test --config tests/mobium.config.json                            # Android, emulator-5554
 MOBIUM_IOS_DEVICE=<udid> mobium test --config tests/ios.config.json      # iOS simulator
 MOBIUM_TV_DEVICE=<serial> mobium test --config tests-tv/tv.config.json   # a TV, by its adb serial
+MOBIUM_APPLETV_DEVICE=<udid> mobium test --config tests-appletv/appletv.config.json   # an Apple TV simulator
 ```
+
+The Apple TV's test needs Mobium `9337299` or later
+(mobiumdev/mobium#227, #228 and #229): typing through tvOS's keyboard
+screen, a dialog rule answered with the remote, and the `selected`
+condition.
 
 Edit `tests/mobium.config.json` to name another Android device. The TV's
 test is the phone suite's checkout test A, driven as a person on a sofa

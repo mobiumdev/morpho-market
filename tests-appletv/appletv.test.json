@@ -1,0 +1,766 @@
+{
+  "description": "Morpho Market on an Apple TV, driven with the remote: the Fire TV test's checkout, with the presses tvOS's focus engine takes and a check after each of where focus went. tvOS types into a keyboard screen of its own: select opens it for the field with focus, fill types there, and hiding it keeps the text.",
+  "app": "dev.mobium.shop.tv",
+  "beforeEach": [
+    {
+      "dialogs": {
+        "when": "Morpho Market",
+        "press": "Open"
+      },
+      "description": "tvOS asks before a link opens the app, until Open is pressed once; the rule answers with the remote"
+    },
+    {
+      "open_url": "mobiumshop://reset"
+    },
+    {
+      "wait_for": {
+        "target": "testid=catalogList",
+        "timeout_ms": 3000
+      },
+      "description": "3 seconds, as on the phone: the slow-catalog bug takes 8"
+    }
+  ],
+  "tests": [
+    {
+      "name": "A on Apple TV: two tees and a mug, WELCOME10, standard to NY",
+      "steps": [
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=product_tee",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=productTitle",
+            "condition": "text",
+            "text": "Logo Tee",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=size_XS",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-right"
+        },
+        {
+          "wait_for": {
+            "target": "testid=size_S",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-right"
+        },
+        {
+          "wait_for": {
+            "target": "testid=size_M",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=size_M",
+            "condition": "selected"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=qtyPlus",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=qtyValue",
+            "condition": "text",
+            "text": "2",
+            "exact": true
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=addToCart",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": "testid=addedNotice"
+        },
+        {
+          "press": "back"
+        },
+        {
+          "wait_for": {
+            "target": "testid=screenTitle",
+            "condition": "text",
+            "text": "Morpho Market",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=product_tee",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=product_mug",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=productTitle",
+            "condition": "text",
+            "text": "Wait For It Mug",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=addToCart",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=viewCart",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=screenTitle",
+            "condition": "text",
+            "text": "Cart",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=codeField",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=codeField",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=codeField",
+            "text": "WELCOME10"
+          }
+        },
+        {
+          "keyboard": {
+            "key": "enter"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=codeField",
+            "condition": "focused"
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=sumDiscount",
+            "condition": "text",
+            "text": "-$6.40",
+            "exact": true
+          }
+        },
+        {
+          "press": "dpad-up"
+        },
+        {
+          "wait_for": {
+            "target": "testid=lineMinus_tee_M",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=lineMinus_mug",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=applyCode",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=checkoutBtn",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=screenTitle",
+            "condition": "text",
+            "text": "Delivery",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=ship_standard",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=sumShipping",
+            "condition": "text",
+            "text": "$5.99",
+            "exact": true
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=continueDelivery",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=screenTitle",
+            "condition": "text",
+            "text": "Address",
+            "exact": true
+          }
+        },
+        {
+          "expect": {
+            "tool": "app_current",
+            "field": "app",
+            "equals": "dev.mobium.shop.tv"
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_name",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_name",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_name",
+            "text": "Ada Lovelace"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_name",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_street",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_street",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_street",
+            "text": "1 Main St"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_street",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_city",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_city",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_city",
+            "text": "New York"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_city",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=statePicker",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=state_CA",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=state_NY",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=statePicker",
+            "condition": "focused"
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=statePicker",
+            "condition": "text",
+            "text": "State: NY",
+            "exact": true
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_zip",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_zip",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_zip",
+            "text": "10001"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_zip",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_email",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_email",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_email",
+            "text": "ada@example.com"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_email",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=continueBtn",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=screenTitle",
+            "condition": "text",
+            "text": "Payment",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardNumber",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardNumber",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_cardNumber",
+            "text": "4242 4242 4242 4242"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardNumber",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardExpiry",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardExpiry",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_cardExpiry",
+            "text": "12/30"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardExpiry",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardCvc",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardCvc",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_cardCvc",
+            "text": "123"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardCvc",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardName",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardName",
+            "condition": "focused"
+          }
+        },
+        {
+          "fill": {
+            "target": "testid=field_cardName",
+            "text": "Ada Lovelace"
+          }
+        },
+        {
+          "keyboard": {
+            "hide": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=field_cardName",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=continuePayment",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=screenTitle",
+            "condition": "text",
+            "text": "Review",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=sumTax",
+            "condition": "text",
+            "text": "$5.64",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=sumTotal",
+            "condition": "text",
+            "text": "$69.23",
+            "exact": true
+          }
+        },
+        {
+          "press": "dpad-down"
+        },
+        {
+          "wait_for": {
+            "target": "testid=placeOrder",
+            "condition": "focused"
+          }
+        },
+        {
+          "press": "select"
+        },
+        {
+          "wait_for": {
+            "target": "testid=orderNumber",
+            "condition": "text",
+            "text": "Order MS-000001 placed",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": {
+            "target": "testid=confirmTotal",
+            "condition": "text",
+            "text": "$69.23",
+            "exact": true
+          }
+        },
+        {
+          "wait_for": "label=\"Cart, 0 items\""
+        }
+      ]
+    }
+  ]
+}
