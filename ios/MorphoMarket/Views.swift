@@ -20,12 +20,84 @@ private func listPrice(_ p: Product) -> Int { p.digital ? giftAmounts.values.min
 
 private func priceText(_ p: Product) -> String { p.digital ? "\(money(2500)) or \(money(5000))" : money(p.cents) }
 
+// The price range's ends, in whole dollars: the dearest item is $58.00.
+let priceMin = 0
+let priceMax = 60
+
+/// A two-thumb slider of the app's own: SwiftUI has none, so an app draws
+/// one, as this does — two thumbs on one track, each dragged, each an
+/// adjustable element named as Compose's RangeSlider names its thumbs, so
+/// one test reads both platforms.
+struct PriceRange: View {
+    @Binding var low: Int
+    @Binding var high: Int
+    private let thumb: CGFloat = 28
+
+    var body: some View {
+        GeometryReader { geo in
+            let usable = geo.size.width - thumb
+            let x = { (v: Int) -> CGFloat in CGFloat(v - priceMin) / CGFloat(priceMax - priceMin) * usable }
+            let value = { (at: CGFloat) -> Int in
+                priceMin + Int((max(0, min(usable, at)) / usable * CGFloat(priceMax - priceMin)).rounded())
+            }
+            ZStack(alignment: .leading) {
+                // The track is an element of its own, the control's full width:
+                // a container's frame is the union of what it holds, and with
+                // only the thumbs in it the range's frame moved with them,
+                // saying nothing of where the track ends.
+                Rectangle().fill(Color.clear).contentShape(Rectangle())
+                    .frame(maxWidth: .infinity, minHeight: thumb)
+                    .accessibilityElement()
+                    .accessibilityIdentifier("priceTrack")
+                Capsule().fill(Color.secondary.opacity(0.3)).frame(height: 4)
+                    .padding(.horizontal, thumb / 2)
+                Capsule().fill(Color.accentColor).frame(width: x(high) - x(low), height: 4)
+                    .offset(x: x(low) + thumb / 2)
+                knob("Range start", value: low, at: x(low)) { at in low = min(value(at), high) }
+                    increment: { low = min(low + 1, high) } decrement: { low = max(low - 1, priceMin) }
+                knob("Range end", value: high, at: x(high)) { at in high = max(value(at), low) }
+                    increment: { high = min(high + 1, priceMax) } decrement: { high = max(high - 1, low) }
+            }
+            .frame(height: geo.size.height)
+            .coordinateSpace(name: "priceTrack")
+        }
+        .frame(height: 44)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("priceRange")
+    }
+
+    private func knob(_ name: String, value: Int, at: CGFloat, drag: @escaping (CGFloat) -> Void,
+                      increment: @escaping () -> Void, decrement: @escaping () -> Void) -> some View {
+        Circle().fill(Color.white).shadow(radius: 1)
+            .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
+            .frame(width: thumb, height: thumb)
+            .offset(x: at)
+            .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("priceTrack"))
+                .onChanged { g in drag(g.location.x - thumb / 2) })
+            .accessibilityElement()
+            .accessibilityLabel(name)
+            .accessibilityValue("$\(value)")
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment: increment()
+                case .decrement: decrement()
+                @unknown default: break
+                }
+            }
+    }
+}
+
 struct CatalogView: View {
     @Environment(Shop.self) private var shop
     @Environment(Router.self) private var router
     @Environment(\.shopLayout) private var layout
     @State private var query = ""
     @State private var category: Category?
+    // The price range, in whole dollars, behind the Price chip: closed, the
+    // catalog is the one every test knows.
+    @State private var priceOpen = false
+    @State private var low = priceMin
+    @State private var high = priceMax
     @State private var sort: Sort = .featured
     @State private var loading = false
 
@@ -34,6 +106,7 @@ struct CatalogView: View {
             .filter { category == nil || $0.category == category }
             .filter { query.trimmingCharacters(in: .whitespaces).isEmpty
                 || $0.name.localizedCaseInsensitiveContains(query.trimmingCharacters(in: .whitespaces)) }
+            .filter { (low * 100...high * 100).contains(listPrice($0)) }
         switch sort {
         case .featured: return list
         case .name: return list.sorted { $0.name.lowercased() < $1.name.lowercased() }
@@ -61,6 +134,13 @@ struct CatalogView: View {
             } else {
                 search.padding(.horizontal)
                 chips
+                if priceOpen {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Price: $\(low) – $\(high)").accessibilityIdentifier("priceRangeLabel")
+                        PriceRange(low: $low, high: $high)
+                    }
+                    .padding(.horizontal)
+                }
                 HStack {
                     count
                     Spacer()
@@ -128,6 +208,9 @@ struct CatalogView: View {
                 chip("All", selected: category == nil, id: "category_all") { category = nil }
                 ForEach(Category.allCases, id: \.self) { c in
                     chip(c.label, selected: category == c, id: "category_\(c.rawValue)") { category = c }
+                }
+                if !layout.remote {
+                    chip("Price", selected: priceOpen, id: "priceFilter") { priceOpen.toggle() }
                 }
             }
             .padding(.horizontal)

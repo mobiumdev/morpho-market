@@ -11,6 +11,18 @@
       {"wait_for": {"target": "testid=resultCount", "condition": "text", "text": "13 items", "exact": true}},
       {"wait_for": {"target": "testid=price_tee", "condition": "text", "text": "$24.00", "exact": true}}
     ]},
+    {"name": "a price range narrows the catalog", "steps": [
+      {"scroll_to": {"target": "testid=priceFilter", "direction": "right"}, "description": "off the chip row's edge on a phone"},
+      {"tap": "testid=priceFilter"},
+      {"wait_for": {"target": "testid=priceRangeLabel", "condition": "text", "text": "Price: $0 – $60", "exact": true}},
+      {"fill": {"target": "label=\"Range end\"", "text": "0.25"}, "description": "a two-thumb slider: Material's RangeSlider, and on iOS the app's own"},
+      {"wait_for": {"target": "testid=priceRangeLabel", "condition": "text", "text": "Price: $0 – $15", "exact": true}},
+      {"wait_for": {"target": "testid=resultCount", "condition": "text", "text": "4 items", "exact": true}},
+      {"fill": {"target": "label=\"Range start\"", "text": "0.1"}},
+      {"wait_for": {"target": "testid=priceRangeLabel", "condition": "text", "text": "Price: $6 – $15", "exact": true}},
+      {"wait_for": {"target": "testid=resultCount", "condition": "text", "text": "3 items", "exact": true}},
+      {"wait_for": {"target": "testid=product_magnet", "condition": "hidden"}, "description": "$5.99, under the range"}
+    ]},
     {"name": "search narrows the catalog", "steps": [
       {"fill": {"target": "testid=searchField", "text": "mug"}},
       {"wait_for": {"target": "testid=resultCount", "condition": "text", "text": "1 item", "exact": true}},
