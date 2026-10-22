@@ -42,6 +42,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -81,6 +82,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.mobium.shop.ui.R
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 /** A product's photograph (res/drawable-nodpi/product_<id>.jpg). Decorative:
  *  no description, so the name beside it stays the one thing a screen reader
@@ -134,19 +136,29 @@ private fun listPrice(p: Product) = if (p.digital) GIFT_AMOUNTS.values.min() els
 
 private fun priceText(p: Product) = if (p.digital) "${money(2500)} or ${money(5000)}" else money(p.cents)
 
+// The price range's ends, in whole dollars: the dearest item is $58.00.
+const val PRICE_MIN = 0
+const val PRICE_MAX = 60
+
 @Composable
 fun CatalogScreen(shop: Shop, columns: Int = 2, imageHeight: Dp = 110.dp, focusOn: String? = null,
     onOpen: (String) -> Unit) {
     val returnFocus = remember { FocusRequester() }
     var query by remember { mutableStateOf("") }
     var category by remember { mutableStateOf<Category?>(null) }
+    // The price range, in whole dollars: a two-thumb slider behind the Price
+    // chip, so a catalog with it closed is the catalog every test knows.
+    var priceOpen by remember { mutableStateOf(false) }
+    var price by remember { mutableStateOf(PRICE_MIN.toFloat()..PRICE_MAX.toFloat()) }
+    val low = price.start.roundToInt()
+    val high = price.endInclusive.roundToInt()
     var sort by remember { mutableStateOf(Sort.FEATURED) }
     var sortOpen by remember { mutableStateOf(false) }
     var loading by remember(shop.resets) { mutableStateOf(shop.bug("slow-catalog") && !shop.catalogShown) }
     // A lazy grid keeps its first visible item in place when the list changes,
     // so a new sort or filter would open partway down: start it at the top.
     val grid = rememberLazyGridState()
-    LaunchedEffect(sort, category, query) { grid.scrollToItem(0) }
+    LaunchedEffect(sort, category, query, low, high) { grid.scrollToItem(0) }
     LaunchedEffect(loading, shop.resets) {
         if (loading) delay(8000)
         loading = false
@@ -169,6 +181,7 @@ fun CatalogScreen(shop: Shop, columns: Int = 2, imageHeight: Dp = 110.dp, focusO
     val shown = CATALOG
         .filter { category == null || it.category == category }
         .filter { query.isBlank() || it.name.contains(query.trim(), ignoreCase = true) }
+        .filter { listPrice(it) in low * 100..high * 100 }
         .let { list ->
             when (sort) {
                 Sort.FEATURED -> list
@@ -200,6 +213,25 @@ fun CatalogScreen(shop: Shop, columns: Int = 2, imageHeight: Dp = 110.dp, focusO
             Category.entries.forEach { c ->
                 FilterChip(selected = category == c, onClick = { category = c }, label = { Text(c.label) },
                     modifier = Modifier.testTag("category_${c.id}"))
+            }
+            // A range is dragged, which a remote cannot: phones only, as on iOS.
+            if (!LocalRemote.current) {
+                FilterChip(selected = priceOpen, onClick = { priceOpen = !priceOpen }, label = { Text("Price") },
+                    modifier = Modifier.testTag("priceFilter"))
+            }
+        }
+        if (priceOpen) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+                Text("Price: \$$low – \$$high", Modifier.testTag("priceRangeLabel"))
+                // Material's own two-thumb slider, as an app would use it: whole
+                // dollars, a step each.
+                RangeSlider(
+                    value = price,
+                    onValueChange = { price = it },
+                    valueRange = PRICE_MIN.toFloat()..PRICE_MAX.toFloat(),
+                    steps = PRICE_MAX - PRICE_MIN - 1,
+                    modifier = Modifier.fillMaxWidth().testTag("priceRange"),
+                )
             }
         }
         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
