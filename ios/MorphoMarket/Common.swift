@@ -220,29 +220,54 @@ struct ProductImage: View {
     }
 }
 
-/// The morpho, drawn: the brand mark, where no product is shown.
-struct Butterfly: View {
-    let color: Color
-
+/// The Mobium mark, where no product is shown: drawn from its master,
+/// assets/branding/mobium-mark.svg in mobiumdev/mobium — four cubic shapes in
+/// its 586x580 box, each with its own horizontal gradient, feet under wings.
+/// Drawn rather than shipped as a picture, so it is sharp at any size, and
+/// from the same numbers as Android's.
+struct MobiumMark: View {
     var body: some View {
-        GeometryReader { g in
-            let w = g.size.width, h = g.size.height
-            let wing = min(w, h) * 0.42
-            ZStack {
-                Ellipse().fill(color).frame(width: wing, height: wing * 0.9)
-                    .rotationEffect(.degrees(-20)).position(x: w / 2 - wing / 2, y: h * 0.12 + wing * 0.45)
-                Ellipse().fill(color).frame(width: wing, height: wing * 0.9)
-                    .rotationEffect(.degrees(20)).position(x: w / 2 + wing / 2, y: h * 0.12 + wing * 0.45)
-                Ellipse().fill(color.opacity(0.75)).frame(width: wing * 0.8, height: wing * 0.65)
-                    .position(x: w / 2 - wing * 0.4, y: h * 0.48 + wing * 0.33)
-                Ellipse().fill(color.opacity(0.75)).frame(width: wing * 0.8, height: wing * 0.65)
-                    .position(x: w / 2 + wing * 0.4, y: h * 0.48 + wing * 0.33)
-                RoundedRectangle(cornerRadius: 2).fill(Color(white: 0.15))
-                    .frame(width: w * 0.03, height: h * 0.62).position(x: w / 2, y: h * 0.49)
+        Canvas { context, size in
+            let s = min(size.width / Self.width, size.height / Self.height)
+            let dx = (size.width - Self.width * s) / 2, dy = (size.height - Self.height * s) / 2
+            func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: dx + x * s, y: dy + y * s) }
+            for shape in Self.shapes {
+                var path = Path()
+                path.move(to: pt(shape.start.0, shape.start.1))
+                for c in shape.curves {
+                    path.addCurve(to: pt(c[4], c[5]), control1: pt(c[0], c[1]), control2: pt(c[2], c[3]))
+                }
+                path.closeSubpath()
+                context.fill(path, with: .linearGradient(Gradient(colors: [shape.from, shape.to]),
+                                                         startPoint: pt(shape.x1, 0), endPoint: pt(shape.x2, 0)))
             }
         }
         .accessibilityHidden(true)
     }
+
+    private struct Part {
+        let from: Color, to: Color, x1: CGFloat, x2: CGFloat
+        let start: (CGFloat, CGFloat)
+        let curves: [[CGFloat]]
+    }
+
+    private static let width: CGFloat = 586, height: CGFloat = 580
+
+    private static func rgb(_ hex: UInt32) -> Color {
+        Color(red: Double(hex >> 16 & 0xFF) / 255, green: Double(hex >> 8 & 0xFF) / 255, blue: Double(hex & 0xFF) / 255)
+    }
+
+    // mobium-mark.svg's paths and gradients, with its translate(-334,-226) applied.
+    private static let shapes = [
+        Part(from: rgb(0x763CFB), to: rgb(0x5832FA), x1: 3, x2: 196, start: (3, 224),
+              curves: [[283, 264, 229, 593, 3, 579]]),
+        Part(from: rgb(0x02BCC1), to: rgb(0x01CBDD), x1: 392, x2: 583, start: (585, 224),
+              curves: [[305, 264, 359, 593, 585, 579]]),
+        Part(from: rgb(0x4C59FC), to: rgb(0x3552FD), x1: 0, x2: 290, start: (8, 0),
+              curves: [[156, 9, 306, 154, 290, 358], [106, 202, -38, 254, 8, 0]]),
+        Part(from: rgb(0x0F70FC), to: rgb(0x00BAFC), x1: 298, x2: 585, start: (580, 0),
+              curves: [[432, 9, 282, 154, 298, 358], [482, 202, 626, 254, 580, 0]]),
+    ]
 }
 
 /// A summary row: the value carries the id, as on Android.

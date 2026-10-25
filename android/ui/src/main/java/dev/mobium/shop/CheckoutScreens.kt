@@ -289,7 +289,7 @@ fun ConfirmationScreen(shop: Shop, number: String, onKeepShopping: () -> Unit) {
     val o = shop.orders.firstOrNull { it.number == number } ?: return
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Butterfly(0xFF1565C0, Modifier.size(120.dp))
+        MobiumMark(Modifier.size(120.dp))
         Text("Order ${o.number} placed", Modifier.testTag("orderNumber"), style = MaterialTheme.typography.titleLarge)
         Text(money(o.total), Modifier.testTag("confirmTotal"), style = MaterialTheme.typography.titleMedium)
         Text("A receipt is on its way to ${o.address.email}.", style = MaterialTheme.typography.bodyMedium)

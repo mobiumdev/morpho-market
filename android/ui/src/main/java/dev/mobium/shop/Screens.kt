@@ -64,10 +64,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalFocusManager
@@ -103,26 +102,50 @@ private val PRODUCT_IMAGES = mapOf(
     "giftcard" to R.drawable.product_giftcard,
 )
 
-/** The morpho, drawn: the brand mark, where no product is shown. */
+/**
+ * The Mobium mark, where no product is shown: drawn from its master,
+ * assets/branding/mobium-mark.svg in mobiumdev/mobium — four cubic shapes in
+ * its 586x580 box, each with its own horizontal gradient, feet under wings.
+ * Drawn rather than shipped as a picture, so it is sharp at any size, and
+ * from the same numbers as the iPhone's.
+ */
 @Composable
-fun Butterfly(color: Long, modifier: Modifier = Modifier) {
-    val c = Color(color)
+fun MobiumMark(modifier: Modifier = Modifier) {
     Canvas(modifier) {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2
-        val wing = minOf(w, h) * 0.42f
-        rotate(-20f, Offset(cx, h * 0.45f)) {
-            drawOval(c, Offset(cx - wing, h * 0.12f), Size(wing, wing * 0.9f))
+        val s = minOf(size.width / MARK_W, size.height / MARK_H)
+        val dx = (size.width - MARK_W * s) / 2
+        val dy = (size.height - MARK_H * s) / 2
+        for (shape in MARK_SHAPES) {
+            val path = Path().apply {
+                moveTo(dx + shape.start[0] * s, dy + shape.start[1] * s)
+                for (c in shape.curves) {
+                    cubicTo(dx + c[0] * s, dy + c[1] * s, dx + c[2] * s, dy + c[3] * s, dx + c[4] * s, dy + c[5] * s)
+                }
+                close()
+            }
+            drawPath(path, Brush.horizontalGradient(listOf(Color(shape.from), Color(shape.to)),
+                startX = dx + shape.x1 * s, endX = dx + shape.x2 * s))
         }
-        rotate(20f, Offset(cx, h * 0.45f)) {
-            drawOval(c, Offset(cx, h * 0.12f), Size(wing, wing * 0.9f))
-        }
-        drawOval(c.copy(alpha = 0.75f), Offset(cx - wing * 0.8f, h * 0.48f), Size(wing * 0.8f, wing * 0.65f))
-        drawOval(c.copy(alpha = 0.75f), Offset(cx, h * 0.48f), Size(wing * 0.8f, wing * 0.65f))
-        drawRoundRect(Color(0xFF263238), Offset(cx - w * 0.015f, h * 0.18f), Size(w * 0.03f, h * 0.62f))
     }
 }
+
+private class MarkShape(val from: Long, val to: Long, val x1: Float, val x2: Float,
+    val start: FloatArray, val curves: List<FloatArray>)
+
+private const val MARK_W = 586f
+private const val MARK_H = 580f
+
+// mobium-mark.svg's paths and gradients, with its translate(-334,-226) applied.
+private val MARK_SHAPES = listOf(
+    MarkShape(0xFF763CFB, 0xFF5832FA, 3f, 196f, floatArrayOf(3f, 224f),
+        listOf(floatArrayOf(283f, 264f, 229f, 593f, 3f, 579f))),
+    MarkShape(0xFF02BCC1, 0xFF01CBDD, 392f, 583f, floatArrayOf(585f, 224f),
+        listOf(floatArrayOf(305f, 264f, 359f, 593f, 585f, 579f))),
+    MarkShape(0xFF4C59FC, 0xFF3552FD, 0f, 290f, floatArrayOf(8f, 0f),
+        listOf(floatArrayOf(156f, 9f, 306f, 154f, 290f, 358f), floatArrayOf(106f, 202f, -38f, 254f, 8f, 0f))),
+    MarkShape(0xFF0F70FC, 0xFF00BAFC, 298f, 585f, floatArrayOf(580f, 0f),
+        listOf(floatArrayOf(432f, 9f, 282f, 154f, 298f, 358f), floatArrayOf(482f, 202f, 626f, 254f, 580f, 0f))),
+)
 
 private enum class Sort(val id: String, val label: String) {
     FEATURED("featured", "Featured"),
