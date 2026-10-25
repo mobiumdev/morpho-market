@@ -54,6 +54,7 @@
       {"tap": "testid=product_hoodie"},
       {"tap": "testid=size_XL"},
       {"wait_for": {"target": "testid=variantStock", "condition": "text", "text": "Out of stock in XL", "exact": true}},
+      {"scroll_to": {"target": "testid=addToCart", "direction": "down"}, "description": "under the size chips on a short screen: a Quest's panel"},
       {"wait_for": {"target": "testid=addToCart", "condition": "disabled", "timeout_ms": 2000}}
     ]},
     {"name": "the quantity stops at 10", "steps": [
