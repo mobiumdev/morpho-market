@@ -263,7 +263,7 @@ struct ConfirmationView: View {
     var body: some View {
         if let o = shop.orders.first(where: { $0.number == number }) {
             VStack(spacing: 12) {
-                Butterfly(color: morpho).frame(width: 120, height: 120)
+                MobiumMark().frame(width: 120, height: 120)
                 Text("Order \(o.number) placed").font(.title2).accessibilityIdentifier("orderNumber")
                 Text(money(o.total)).font(.title3).accessibilityIdentifier("confirmTotal")
                 Text("A receipt is on its way to \(o.address.email).")

@@ -72,8 +72,12 @@ struct PriceRange: View {
             .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
             .frame(width: thumb, height: thumb)
             .offset(x: at)
+            #if !os(tvOS)
+            // tvOS has no touch and no DragGesture: there a thumb moves by its
+            // adjustable action alone, which the remote's arrows drive.
             .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("priceTrack"))
                 .onChanged { g in drag(g.location.x - thumb / 2) })
+            #endif
             .accessibilityElement()
             .accessibilityLabel(name)
             .accessibilityValue("$\(value)")
