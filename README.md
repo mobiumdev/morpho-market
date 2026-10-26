@@ -306,18 +306,20 @@ python3 tests/score.py out/ios
 
 ## Results
 
-On an Android 15 emulator and an iPhone 17 Pro simulator (iOS 26.5), with
-Mobium at `2e37123`:
+On an Android 15 emulator and an iPhone 17 Pro simulator (iOS 26.5):
 
 | | Android | iOS |
 |---|---|---|
-| The suite, no bug on | 25 of 25 | 25 of 25 |
+| The suite, no bug on | 26 of 26 | 26 of 26 |
 | Bugs caught | **17 of 17** | **17 of 17** |
 
-The same tests catch each bug on both platforms. `slow-catalog`, a catalog
-that appears after 8 seconds, fails every test on both. The seventeenth,
-`stale-code-message`, was added on 2026-10-17 and run with Mobium at
-`bfcb09f`.
+The suite ran on 2026-10-26 with Mobium at `c5f0c6f`, both apps built from
+`main` (7 min 40 s on Android, 10 min 31 s on iOS). The bug matrix ran on the
+25 tests the suite had before the price range (#4), with Mobium at `2e37123`,
+the seventeenth bug at `bfcb09f`; a test added can only catch more. The same
+tests catch each bug on both platforms. `slow-catalog`, a catalog that
+appears after 8 seconds, fails every test on both. The seventeenth,
+`stale-code-message`, was added on 2026-10-17.
 
 **On a TV**, the one test (Android TV emulator, Android 14): with no bug on
 it passes, and it catches 3 of the 16 bugs it was run against

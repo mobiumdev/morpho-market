@@ -33,5 +33,10 @@ three: `tax-before-discount` (tax $6.21 for $5.64), `stale-badge` (the cart
 still counted after the order) and `slow-catalog` (the catalog later than 3
 seconds).
 
+`suite-2026-10-26/` holds the suite's run with no bug on, after the price
+range made it 26 tests: `android/junit.xml` and `ios/junit.xml`, 26 of 26 on
+each, with Mobium at `c5f0c6f` and both apps built from `main` at `de0f667`.
+The bug matrix has not been run on the 26-test suite.
+
 Screenshots and console logs from these runs are not kept here. To reproduce
 a run, see "The bug switch" in the [README](../README.md).
