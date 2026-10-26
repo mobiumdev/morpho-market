@@ -43,11 +43,27 @@ of where focus went. Shown at double speed.
 |---|---|---|---|---|
 | <img src="docs/media/tv-catalog.png" width="170" alt="TV catalog in five columns"> | <img src="docs/media/tv-product.png" width="170" alt="TV product page: the photograph beside size M chosen and quantity 2"> | <img src="docs/media/tv-cart.png" width="170" alt="TV cart with WELCOME10 applied"> | <img src="docs/media/tv-review.png" width="170" alt="TV review: total $69.23, focus on Place order"> | <img src="docs/media/tv-placed.png" width="170" alt="TV: order MS-000001 placed, $69.23"> |
 
+**On a Meta Quest**, the Android app unchanged, as a panel on the Meta
+Spatial Simulator (Horizon OS): checkout test **A** again, and the price
+range, whose two thumbs are dragged on a panel drawn 2.48 times its size.
+Shown at double speed.
+
+| Checkout test A | A price range narrows the catalog |
+|---|---|
+| <img src="docs/media/quest-checkout.gif" width="300" alt="Checkout test A on the Meta Spatial Simulator: the store as a panel in a room, from the catalog to order MS-000001 placed"> | <img src="docs/media/quest-price-range.gif" width="300" alt="The price range on the Meta Spatial Simulator: the two thumbs dragged to $0 to $57, $0 to $20, $0 to $15 and $5 to $15"> |
+| [Full run, MP4](docs/media/quest-checkout.mp4) | [Full run, MP4](docs/media/quest-price-range.mp4) |
+
+| Catalog | Product | Cart | Placed |
+|---|---|---|---|
+| <img src="docs/media/quest-catalog.png" width="180" alt="Quest: the catalog as a panel"> | <img src="docs/media/quest-product.png" width="180" alt="Quest: Logo Tee, $24.00"> | <img src="docs/media/quest-cart.png" width="180" alt="Quest: cart with WELCOME10 applied, $57.60 before shipping and tax"> | <img src="docs/media/quest-placed.png" width="180" alt="Quest: order MS-000001 placed, $69.23"> |
+
 The product photographs were generated with an open model; how, and every
 prompt, is in [docs/product-images.md](docs/product-images.md).
 
 Recorded on an Android 15 emulator, an iPhone 17 Pro simulator (iOS 26.5)
-and an Android TV emulator (Android 14, 1080p), with Mobium at `74ce9e9`.
+and an Android TV emulator (Android 14, 1080p), with Mobium at `74ce9e9`. The Quest runs
+were recorded on the Meta Spatial Simulator 207.0.0.83.331 with Mobium at
+`c5f0c6f`.
 
 ## Contents
 
@@ -57,6 +73,7 @@ and an Android TV emulator (Android 14, 1080p), with Mobium at `74ce9e9`.
 - [Build and install](#build-and-install)
 - [On a TV](#on-a-tv)
 - [On an Apple TV](#on-an-apple-tv)
+- [On a Meta Quest](#on-a-meta-quest)
 - [Run the tests](#run-the-tests)
 - [The bug switch](#the-bug-switch)
 - [Results](#results)
@@ -214,6 +231,31 @@ selected, which is what SwiftUI says it is. tvOS types into a keyboard
 screen of its own: select opens it for the field with focus, `fill` types
 there, and hiding it keeps the text.
 
+## On a Meta Quest
+
+There is no Quest build: the Android app runs unchanged on Horizon OS, where
+it is a panel among others, 500×800 pixels drawn 2.48 times that size.
+Mobium drives it there with the shared suite and `tests/quest.config.json`,
+whose one project is the device `MOBIUM_QUEST_DEVICE` names:
+
+```sh
+MOBIUM_QUEST_DEVICE=emulator-5554 mobium test --config tests/quest.config.json
+```
+
+Two things the panel needed, both in Mobium rather than the app:
+
+- **Every app is open at once.** The catalog's implicit scroll first went to
+  the browser's page behind the store, and 1 test in 26 passed. Mobium now
+  asks only the app in front (its CHALLENGES 367).
+- **A drag goes further than the finger.** Compose moved the price range's
+  thumbs about 2.4 times as far, so a fill read $0 for 0.25. Mobium's fill
+  now learns how far a drag carries a thumb from its own drags and lands, or
+  refuses one that did not (CHALLENGES 368).
+
+One test changed for the panel: "out of stock" scrolls to Add to Cart, which
+sits below the fold on a panel (#5). It has been run on the simulator only,
+not a real headset.
+
 ## Run the tests
 
 Install [Mobium](https://github.com/mobiumdev/mobium) (`go install
@@ -282,6 +324,10 @@ it passes, and it catches 3 of the 16 bugs it was run against
 (`slow-catalog`, `stale-badge`, `tax-before-discount`), exactly the bugs
 the phone's checkout test A catches on its own. The other bugs are caught on the phones by tests the TV does not
 have yet. The JUnit results and scores are in [evidence/](evidence/README.md).
+
+**On a Meta Quest** (Meta Spatial Simulator, Horizon OS build 207), the
+shared suite with no bug on: **26 of 26**, with Mobium at `c5f0c6f` (25 of 26
+before its CHALLENGES 368). The bug matrix has not been run there.
 
 ## License
 
