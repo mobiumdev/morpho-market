@@ -9,19 +9,26 @@
 # runner's debug key and the iOS and tvOS builds are for the simulator,
 # unsigned: an app under test, never published to a store.
 #
-# A pull request that changes this file builds everything and publishes
-# nothing.
+# It is also the repository's CI: every pull request and every push to main
+# builds everything and publishes nothing, so a change that breaks a build
+# or a unit test fails before it is merged rather than at the next tag. A
+# failure on main opens an issue (failure-issue.yml).
 name: Release
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
   pull_request:
-    paths: ['.github/workflows/release.yml']
   workflow_dispatch:
 
 permissions:
   contents: read
+
+# A pull request's earlier run is superseded by its newest commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   android:
@@ -78,7 +85,7 @@ jobs:
         with:
           path: dist
           merge-multiple: true
-      - run: sha256sum * > SHA256SUMS
+      - run: sha256sum -- * > SHA256SUMS
         working-directory: dist
       - run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "Morpho Market $GITHUB_REF_NAME" --generate-notes
         env:
