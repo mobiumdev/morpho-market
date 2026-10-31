@@ -70,6 +70,7 @@ were recorded on the Meta Spatial Simulator 207.0.0.83.331 with Mobium at
 - [See it run](#see-it-run)
 - [Why it exists](#why-it-exists)
 - [What is in it](#what-is-in-it)
+- [Install a release](#install-a-release)
 - [Build and install](#build-and-install)
 - [On a TV](#on-a-tv)
 - [On an Apple TV](#on-an-apple-tv)
@@ -110,6 +111,26 @@ to #217, the last reproduced and confirmed in #218.
 Both apps use the same accessibility ids, the same text and the same prices,
 so one test file drives both. No third-party dependencies in either app:
 Jetpack and Apple frameworks only. Money is integer cents everywhere.
+
+## Install a release
+
+Each tag `v*` publishes the four builds, made by
+`.github/workflows/release.yml`, under names that stay the same from release
+to release: `MorphoMarket-android.apk` (phone), `MorphoMarket-android-tv.apk`
+(Android TV and Fire TV), `MorphoMarket-ios-simulator.zip` and
+`MorphoMarket-tvos-simulator.zip`, with `SHA256SUMS`.
+
+```sh
+gh release download -R mobiumdev/morpho-market -p MorphoMarket-android.apk
+adb install -r MorphoMarket-android.apk
+
+gh release download -R mobiumdev/morpho-market -p MorphoMarket-ios-simulator.zip
+unzip MorphoMarket-ios-simulator.zip && xcrun simctl install <udid> "Morpho Market.app"
+```
+
+The APKs are signed with the build machine's debug key, so uninstall one you
+built yourself before installing a release over it. The iOS and tvOS builds
+run on a simulator only; for an iPhone, build it as below.
 
 ## Build and install
 
