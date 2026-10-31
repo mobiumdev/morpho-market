@@ -1,0 +1,85 @@
+# Builds Morpho Market for every platform it runs on and, on a tag,
+# publishes the builds as a GitHub release, so a check or a CI job can
+# install the app under test without building it: `gh release download -R
+# mobiumdev/morpho-market`, or
+# https://github.com/mobiumdev/morpho-market/releases/latest/download/<file>.
+#
+# The file names do not carry the version, so that latest/download URL
+# stays the same from release to release. Android builds are signed with the
+# runner's debug key and the iOS and tvOS builds are for the simulator,
+# unsigned: an app under test, never published to a store.
+#
+# A pull request that changes this file builds everything and publishes
+# nothing.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths: ['.github/workflows/release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: ./gradlew --no-daemon :shared:testDebugUnitTest :app:assembleRelease :tv:assembleRelease
+        working-directory: android
+      - run: |
+          cp android/app/build/outputs/apk/release/app-release.apk MorphoMarket-android.apk
+          cp android/tv/build/outputs/apk/release/tv-release.apk MorphoMarket-android-tv.apk
+      - uses: actions/upload-artifact@v5
+        with:
+          name: android
+          path: |
+            MorphoMarket-android.apk
+            MorphoMarket-android-tv.apk
+
+  apple:
+    runs-on: xcode-27
+    steps:
+      - uses: actions/checkout@v5
+      - run: brew install xcodegen && xcodegen generate
+        working-directory: ios
+      - run: |
+          for target in MorphoMarket:iOS MorphoMarketTV:tvOS; do
+            xcodebuild -project MorphoMarket.xcodeproj -scheme "${target%%:*}" -configuration Release \
+              -destination "generic/platform=${target#*:} Simulator" -derivedDataPath build \
+              CODE_SIGNING_ALLOWED=NO build -quiet
+          done
+        working-directory: ios
+      - run: |
+          ditto -c -k --keepParent "ios/build/Build/Products/Release-iphonesimulator/Morpho Market.app" MorphoMarket-ios-simulator.zip
+          ditto -c -k --keepParent "ios/build/Build/Products/Release-appletvsimulator/Morpho Market.app" MorphoMarket-tvos-simulator.zip
+      - uses: actions/upload-artifact@v5
+        with:
+          name: apple
+          path: |
+            MorphoMarket-ios-simulator.zip
+            MorphoMarket-tvos-simulator.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [android, apple]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          path: dist
+          merge-multiple: true
+      - run: sha256sum * > SHA256SUMS
+        working-directory: dist
+      - run: gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" --title "Morpho Market $GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
