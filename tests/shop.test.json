@@ -9,6 +9,7 @@
   "tests": [
     {"name": "the catalog lists every product", "steps": [
       {"wait_for": {"target": "testid=resultCount", "condition": "text", "text": "13 items", "exact": true}},
+      {"scroll_to": {"target": "testid=price_tee", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=price_tee", "condition": "text", "text": "$24.00", "exact": true}}
     ]},
     {"name": "a price range narrows the catalog", "steps": [
@@ -35,19 +36,23 @@
     {"name": "price, low to high, starts with the magnet", "steps": [
       {"tap": "testid=sortMenu"},
       {"tap": "testid=sort_price_asc"},
-      {"wait_for": {"target": "testid=price_magnet", "timeout_ms": 3000}},
-      {"wait_for": {"target": "testid=price_stickers", "timeout_ms": 3000}},
+      {"wait_for": {"target": "testid=product_magnet", "timeout_ms": 3000}, "description": "its card, which is in the first row on a car's short screen too, where its price is below the fold; no scroll, or a wrong order would pass"},
+      {"wait_for": {"target": "testid=product_stickers", "timeout_ms": 3000}},
       {"wait_for": {"target": "testid=price_hoodie", "condition": "hidden", "timeout_ms": 3000}}
     ]},
     {"name": "an XXL tee costs $2 more", "steps": [
       {"tap": "testid=product_tee"},
+      {"scroll_to": {"target": "testid=addToCart", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=addToCart", "condition": "disabled"}},
       {"tap": "testid=size_XXL"},
+      {"scroll_to": {"target": "testid=productPrice", "direction": "up"}, "description": "on a short screen, a car's, the test scrolled past it, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=productPrice", "condition": "text", "text": "$26.00", "exact": true}},
+      {"scroll_to": {"target": "testid=addToCart", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=addToCart", "condition": "enabled"}}
     ]},
     {"name": "out of stock cannot be added", "steps": [
       {"tap": "testid=product_beanie"},
+      {"scroll_to": {"target": "testid=productStock", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": "testid=productStock"},
       {"wait_for": {"target": "testid=addToCart", "condition": "disabled", "timeout_ms": 2000}},
       {"tap": "testid=backBtn"},
@@ -76,11 +81,13 @@
       {"tap": "testid=product_mug"},
       {"tap": "testid=addToCart"},
       {"tap": "testid=viewCart"},
+      {"scroll_to": {"target": "testid=sumMerch", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=sumMerch", "condition": "text", "text": "$64.00", "exact": true}},
       {"fill": {"target": "testid=codeField", "text": "welcome10"}},
       {"tap": "testid=applyCode"},
       {"wait_for": {"target": "testid=codeMessage", "condition": "text", "text": "WELCOME10 applied: 10% off merchandise.", "exact": true}},
       {"wait_for": {"target": "testid=sumDiscount", "condition": "text", "text": "-$6.40", "exact": true}},
+      {"scroll_to": {"target": "testid=sumTotal", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=sumTotal", "condition": "text", "text": "$57.60", "exact": true}}
     ]},
     {"name": "a code applies once", "steps": [
@@ -116,6 +123,7 @@
       {"tap": "testid=product_magnet"},
       {"tap": "testid=addToCart"},
       {"tap": "testid=viewCart"},
+      {"scroll_to": {"target": "testid=sumMerch", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=sumMerch", "condition": "text", "text": "$31.99", "exact": true}},
       {"fill": {"target": "testid=codeField", "text": "MOBIUM5"}},
       {"tap": "testid=applyCode"},
@@ -150,6 +158,8 @@
       {"wait_for": {"target": "testid=sumDiscount", "condition": "text", "text": "-$3.75", "exact": true}}
     ]},
     {"name": "a gift card needs an email, and takes no code", "steps": [
+      {"scroll_to": {"target": "testid=category_giftcards", "direction": "right"}, "description": "off the chip row's edge on a phone"},
+      {"tap": "testid=category_giftcards", "description": "the gift card is the catalog's last: on a car's 158-pixel list fifteen scrolls fall short"},
       {"tap": "testid=product_giftcard"},
       {"tap": "testid=amount_25"},
       {"tap": "testid=addToCart"},
