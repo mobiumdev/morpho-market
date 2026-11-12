@@ -57,13 +57,28 @@ Shown at double speed.
 |---|---|---|---|
 | <img src="docs/media/quest-catalog.png" width="180" alt="Quest: the catalog as a panel"> | <img src="docs/media/quest-product.png" width="180" alt="Quest: Logo Tee, $24.00"> | <img src="docs/media/quest-cart.png" width="180" alt="Quest: cart with WELCOME10 applied, $57.60 before shipping and tax"> | <img src="docs/media/quest-placed.png" width="180" alt="Quest: order MS-000001 placed, $69.23"> |
 
+**In a car**, the Android app unchanged on the Android Automotive 15
+emulator, between the car's own bars: checkout test **A** again, and the
+price range. The screen is 1024×768 and the bars take 172 pixels of it, so
+the tests scroll to what the short screen hides. Shown at double speed.
+
+| Checkout test A | A price range narrows the catalog |
+|---|---|
+| <img src="docs/media/car-checkout.gif" width="480" alt="Checkout test A on the Android Automotive 15 emulator, between the car's bars and climate controls, from the catalog to order MS-000001 placed"> | <img src="docs/media/car-price-range.gif" width="480" alt="The price range on the Android Automotive 15 emulator: the two thumbs dragged to $0 to $15 and $6 to $15, the catalog down to 3 items"> |
+| [Full run, MP4](docs/media/car-checkout.mp4) | [Full run, MP4](docs/media/car-price-range.mp4) |
+
+| Catalog | Product | Cart | Review | Placed |
+|---|---|---|---|---|
+| <img src="docs/media/car-catalog.png" width="170" alt="Car: the catalog between the car's bars"> | <img src="docs/media/car-product.png" width="170" alt="Car: Logo Tee, $24.00, size M chosen"> | <img src="docs/media/car-cart.png" width="170" alt="Car: the cart with WELCOME10 applied"> | <img src="docs/media/car-review.png" width="170" alt="Car: review, total $69.23"> | <img src="docs/media/car-placed.png" width="170" alt="Car: order MS-000001 placed, $69.23"> |
+
 The product photographs were generated with an open model; how, and every
 prompt, is in [docs/product-images.md](docs/product-images.md).
 
 Recorded on an Android 15 emulator, an iPhone 17 Pro simulator (iOS 26.5)
 and an Android TV emulator (Android 14, 1080p), with Mobium at `74ce9e9`. The Quest runs
 were recorded on the Meta Spatial Simulator 207.0.0.83.331 with Mobium at
-`c5f0c6f`.
+`c5f0c6f`, and the car's on the Android Automotive 15 emulator with Mobium at
+`9ee7daf`.
 
 ## Contents
 
@@ -75,6 +90,7 @@ were recorded on the Meta Spatial Simulator 207.0.0.83.331 with Mobium at
 - [On a TV](#on-a-tv)
 - [On an Apple TV](#on-an-apple-tv)
 - [On a Meta Quest](#on-a-meta-quest)
+- [In a car](#in-a-car)
 - [Run the tests](#run-the-tests)
 - [The bug switch](#the-bug-switch)
 - [Results](#results)
@@ -104,7 +120,7 @@ to #217, the last reproduced and confirmed in #218.
 | `spec/` | The pricing rules as a reference (`pricing.py`), the catalog, and the shared pricing cases |
 | `android/` | Four Gradle modules: `shared`, the store's logic (catalog, pricing, checkout, the bug switch), whose unit tests run the shared cases; `ui`, the screens and product photographs; `app`, the phone app (`dev.mobium.shop`); and `tv`, the TV app (`dev.mobium.shop.tv`) |
 | `ios/` | The SwiftUI app (`dev.mobium.shop`), an XcodeGen project, with unit tests over the same cases |
-| `tests/` | One Mobium test suite for both phone platforms (`shop.test.json`, 14 tests; `checkout.test.json`, 11 tests), the configs, and the bug matrix (`matrix.sh`, `score.py`) |
+| `tests/` | One Mobium test suite for both phone platforms (`shop.test.json`, 15 tests; `checkout.test.json`, 11 tests), the configs, and the bug matrix (`matrix.sh`, `score.py`) |
 | `tests-tv/` | The TV's test, driven with the remote (`tv.test.json`), and its config. A folder of its own: `mobium test` reads every test file under the folder it is given |
 | `evidence/` | The bug matrix's results on both platforms; see [evidence/README.md](evidence/README.md) |
 
@@ -277,6 +293,26 @@ One test changed for the panel: "out of stock" scrolls to Add to Cart, which
 sits below the fold on a panel (#5). It has been run on the simulator only,
 not a real headset.
 
+## In a car
+
+There is no car build either: the Android app runs unchanged on Android
+Automotive, between the system bars, as the driver, user 10. Mobium drives
+it there with the shared suite and `tests/car.config.json`, whose one
+project is the device `MOBIUM_CAR_DEVICE` names:
+
+```sh
+MOBIUM_CAR_DEVICE=emulator-5554 mobium test --config tests/car.config.json
+```
+
+What the car needed was in Mobium, which reads the bars, the app and the
+keyboard as windows of their own and acts for the driver (its CHALLENGES
+393 to 408), and in the tests: 11 of 26 failed at first, waiting on what
+the short screen hid, since `wait_for` does not scroll. Each such wait now
+scrolls to its element first, the gift card is reached through its
+category, and the sort test waits on the first row's cards with no scroll,
+so a wrong order still fails (#13). It has been run on the emulator only,
+not a car.
+
 ## Run the tests
 
 Install [Mobium](https://github.com/mobiumdev/mobium) (`go install
@@ -351,6 +387,14 @@ have yet. The JUnit results and scores are in [evidence/](evidence/README.md).
 **On a Meta Quest** (Meta Spatial Simulator, Horizon OS build 207), the
 shared suite with no bug on: **26 of 26**, with Mobium at `c5f0c6f` (25 of 26
 before its CHALLENGES 368). The bug matrix has not been run there.
+
+**In a car** (Android Automotive 15 emulator), the shared suite with no bug
+on: **26 of 26**, with Mobium at `9ee7daf`, as on the Pixel 7 AVD and the
+iPhone 17 Pro simulator. The whole bug matrix has not been run there; the
+six tests #13 changed that a bug is aimed at each fail with it on and pass
+with it off (`sort-as-text`, `xxl-no-surcharge`, `out-of-stock-addable`,
+`free-shipping-over`, `tax-before-discount`,
+`free-shipping-before-discount`).
 
 ## License
 
