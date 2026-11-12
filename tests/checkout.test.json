@@ -29,6 +29,7 @@
       {"fill": {"target": "testid=field_cardCvc", "text": "123"}},
       {"fill": {"target": "testid=field_cardName", "text": "Ada Lovelace"}},
       {"tap": "testid=continuePayment"},
+      {"scroll_to": {"target": "testid=sumTax", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=sumTax", "condition": "text", "text": "$5.64", "exact": true}},
       {"wait_for": {"target": "testid=sumTotal", "condition": "text", "text": "$69.23", "exact": true}},
       {"tap": "testid=placeOrder"},
@@ -56,6 +57,7 @@
       {"fill": {"target": "testid=field_cardCvc", "text": "123"}},
       {"fill": {"target": "testid=field_cardName", "text": "Grace Hopper"}},
       {"tap": "testid=continuePayment"},
+      {"scroll_to": {"target": "testid=sumShipping", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=sumShipping", "condition": "text", "text": "$5.99", "exact": true}},
       {"wait_for": {"target": "testid=sumTax", "condition": "text", "text": "$5.29", "exact": true}},
       {"wait_for": {"target": "testid=sumTotal", "condition": "text", "text": "$84.26", "exact": true}}
@@ -64,6 +66,7 @@
       {"tap": "testid=product_tee"}, {"tap": "testid=size_S"}, {"tap": "testid=addToCart"}, {"tap": "testid=backBtn"},
       {"tap": "testid=product_tumbler"}, {"tap": "testid=addToCart"}, {"tap": "testid=backBtn"},
       {"tap": "testid=product_tote"}, {"tap": "testid=addToCart"}, {"tap": "testid=viewCart"},
+      {"scroll_to": {"target": "testid=sumMerch", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=sumMerch", "condition": "text", "text": "$75.00", "exact": true}},
       {"tap": "testid=checkoutBtn"},
       {"wait_for": {"target": "testid=shipPrice_standard", "condition": "text", "text": "Free", "exact": true}},
@@ -142,8 +145,11 @@
       {"fill": {"target": "testid=field_zip", "text": "123"}},
       {"fill": {"target": "testid=field_city", "text": "Portland"}, "description": "a ZIP's number pad has no enter key on iOS"},
       {"keyboard": {"key": "enter"}, "description": "the keyboard covers Continue on a long form; enter gives up focus"}, {"tap": "testid=continueBtn"},
+      {"scroll_to": {"target": "testid=error_name", "direction": "up"}, "description": "on a short screen, a car's, the test scrolled past it, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=error_name", "condition": "text", "text": "Enter your name.", "exact": true}},
+      {"scroll_to": {"target": "testid=error_state", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=error_state", "condition": "text", "text": "Choose a state.", "exact": true}},
+      {"scroll_to": {"target": "testid=error_zip", "direction": "down"}, "description": "a short screen, a car's, puts it below the fold, and wait_for does not scroll"},
       {"wait_for": {"target": "testid=error_zip", "condition": "text", "text": "Enter a 5-digit ZIP code.", "exact": true}}
     ]},
     {"name": "the declined cards are declined, and nothing is ordered", "steps": [
